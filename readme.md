@@ -1,6 +1,4 @@
-Git is a version control system.
-Git is free software.
-
-Creating a new branch is quick and sample.
-
-hello world
+# python
+这里存放小练习
+1. hashlib：
+  输入文件名->返回摘要（MD5）值

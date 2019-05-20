@@ -1,0 +1,98 @@
+{% extends 'userinfo.html' %}
+
+{% block navclass %}
+    <script type="text/javascript">
+        $(function(){
+	        //导航定位
+	        $(".nav li:eq(5)").addClass("navCur");
+	    });
+    </script>
+{% endblock %}
+
+{% block style %}
+<style>
+.textcontent{
+    width: 352px;
+    height: 35px;
+    padding-left: 10px;
+}
+.about p{
+    margin-top: 5px;
+}
+.jianyibtn{
+    margin: 10px 20px;
+    border: 0;
+    background-color: #2b669a;
+    padding: 5px 15px;
+    color: #c7ddef;
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+  <div class="width1190">
+   <div class="contleft">
+    <ul class="leftNav">
+     <li><a href="/aboutus/">关于我们</a></li>
+     <li class="leftNavCur"><a href="/contactus/">联系我们</a></li>
+    </ul><!--leftNav/-->
+   </div><!--contleft/-->
+   <div class="contright">
+    <h2 class="rightat">联系我们</h2>
+    <div class="about">
+{#        <form action="" id="contactform">#}
+            <input type="hidden" name="userA" class="userid" value="{{ user_id }}">
+            <p><input type="text" name="nickname" class=" textcontent nickname" placeholder="请输入您的称呼"></p>
+            <p><input type="email" name="email" class="textcontent email" placeholder="请输入您的邮箱"></p>
+            <p><textarea  id="jianyi" name="advices" cols="50" rows="4" style="padding-left: 10px" placeholder="请留下您宝贵的建议"></textarea></p>
+            <p><button class="jianyibtn" onclick="subjianyi()">提交</button></p>
+            {% csrf_token %}
+{#        </form>#}
+    </div>
+   </div><!--contright/-->
+   <div class="clears"></div>
+  </div><!--width1190/-->
+ </div><!--content/-->
+    <script>
+    function subjianyi() {
+        var jianyi = $('#jianyi').val();
+        var email = $('.email').val();
+        var nickname = $('.nickname').val();
+        var user_id = $('.userid').val();
+        if(jianyi == '' || email == '' || nickname == ''){
+            layer.alert('不可以为空');
+            return false
+        }
+        $.ajax({
+            url: {% url 'contact_submit' %},
+            type: 'post',
+            {#data: $('#contactform').serialize(),#}
+            data: {advices: jianyi, email: email, nickname: nickname, userA_id: user_id,csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()},
+            async: false,
+            dataType: 'json',
+            success: function (data) {
+                if(data.flag == 1){
+                    {#$('#contactform')[0].reset();#}
+                    layer.alert('提交成功')
+                }else if(data.flag == 2){
+                    setTimeout(function () {
+                        layer.alert('提交失败：' + data.msg)
+                    }, 2000)
+
+                }
+               else if(data.flag == 0){
+                    layer.msg('亲,请先登录吧!');
+                    setTimeout(function () {
+                        location.href = '/login/'
+                    }, 2000)
+                }
+                 /*else{
+                    layer.alert('提交失败')
+                }*/
+            }
+        });
+     }
+    </script>
+{% endblock %}

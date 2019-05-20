@@ -1,0 +1,127 @@
+{% extends 'userinfo.html' %}
+
+{% load page_tag %}
+
+{% block style %}
+    <style>
+        input:focus, textarea:focus{outline:none;}
+
+        .zdgf{
+            margin-top: 20px;
+            width: 948px;
+            font-size: 14px;
+        }
+        .zdgf th{
+            text-align: left;
+        }
+        .zdgf td, .zdgf th{
+            padding: 6px 0 3px 0;
+            border-bottom: 1px solid #ccc;
+            margin-left: 10px;
+        }
+        td.acticed{
+            text-align: center;
+        }
+        .clearhistory{
+            margin: 10px 0 0 882px;
+            background-color: #2e6da4;
+            border: 1px solid #ccc;
+            color: #afd9ee;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all .3s;
+        }
+        .clearhistory:hover{
+            background-color: #ccc;
+            color: #2E2D3C;
+        }
+    </style>
+{% endblock %}
+
+{% block link-js %}
+    <link rel="stylesheet" href="/static/css/fenye.css">
+{% endblock %}
+{% block navclass %}
+<script type="text/javascript">
+$(function(){
+    //导航定位
+    $(".nav li:eq(7)").addClass("navCur");
+    $(".vipNav dd a:eq(3)").addClass("vipNavCur");
+});
+</script>
+{% endblock %}
+{% block vip-right %}
+    <div class="vip-right">
+    <h3 class="vipright-title">我的足迹</h3>
+        {% if page_obj %}
+            <button class="clearhistory" onclick="clearhistory()">清空足迹</button>
+            <table class="zdgf" cellpadding="0" cellspacing="0">
+                <tr>
+                    <th>房源标题</th>
+                    <th>所在地区</th>
+                    <th>所属户型</th>
+                    <th>面积大小</th>
+                    <th>浏览时间</th>
+                    <th>房租(元/月)</th>
+                </tr>
+            {% for history in page_obj %}
+            {% csrf_token %}
+                <input type="hidden" class="zdhiddenid" value="{{ history.id }}">
+                <tr>
+                    <td><a href="/pro_zu_info/{{ history.houseH.id }}">{{ history.houseH.title }}</a></td>
+                    <td class="acticed">{{ history.houseH.village }}</td>
+                    <td>{{ history.houseH.bedroom }}</td>
+                    <td class="acticed">{{ history.houseH.area }}</td>
+                    <td>{{ history.add_time | date:'Y-m-d H:i:s' }}</td>
+                    <td class="acticed">{{ history.houseH.unit_price }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            足迹为空....
+        {% endif %}
+    {% if page_obj.paginator.num_pages > 1 %}
+
+            <div class="paginator">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+                    {% endif %}
+                    {% for pg in page_obj.paginator.page_range %}
+                        {% circle_page page_obj.number pg %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+             {% else %}{% endif %}
+    </div><!--vip-right/-->
+    <div class="clearfix"></div>
+    <script>
+            function clearhistory() {
+                layer.confirm('确定要清空我的足迹吗?', {
+                    btn: ['确定', '取消'],
+                }, function (index) {
+                    $.ajax({
+                        type: 'post',
+                        url: '/userinfo/user_history/',
+                        data: {csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()},
+                        async: false,
+                        dataType: 'json',
+                        success: function (data) {
+                            if(data.flag == 1){
+                                layer.msg('足迹已清空', {'icon': 1})
+                                setTimeout(function () {
+                                    location.reload()
+                                }, 2000)
+                            }else{
+                                layer.msg('出错了', {'icon': 2})
+                            }
+                        }
+                    });
+                });
+            }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'index.html' %}
+{% block style %}
+    <style>
+        .newstr{
+            display: inline-block;
+            width: 500px;
+            overflow:hidden;
+            word-break:keep-all;
+            white-space:nowrap;
+            text-overflow:ellipsis;
+        }
+        ul.newsul{
+            margin-top: 10px;
+            width: 800px;
+        }
+        ul.newsul li{
+            font-size: 18px;
+            border-bottom: 1px solid #C8C8C8;
+        }
+        ul.newsul li:hover{
+            color: #000;
+            border-bottom: 1px dashed #4cae4c;
+        }
+        ul.newsul li span{
+            float: right;
+        }
+        .newsleft{
+            width: 800px;
+            float: left;
+            margin-bottom: 20px;
+        }
+        .newsright{
+            width: 350px;
+            float: left;
+            margin-left: 38px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .newsright .newstr{
+            display: inline-block;
+            width: 340px;
+            overflow:hidden;
+            word-break:keep-all;
+            white-space:nowrap;
+            text-overflow:ellipsis;
+        }
+    </style>
+{% endblock %}
+
+{% block navclass %}
+    <script type="text/javascript">
+        $(function(){
+	        //导航定位
+	        $(".nav li:eq(6)").addClass("navCur");
+	    });
+    </script>
+{% endblock %}
+{% block content %}
+<div class="content">
+    <div class="width1190">
+        <div content="main">
+            <h1 align="center">{{ new.title }}</h1>
+            <p style="text-align: center;font-size: 16px;margin: 20px 0;">作者: {{ new.author }}</p>
+            <p style="text-wrap: normal">{{ new.content | linebreaks  }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

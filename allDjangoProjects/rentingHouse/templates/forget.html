@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form action="{% url 'forget' %}" method="post">
+    <input type="email" name="email" placeholder="请输入邮箱" value="{{ email }}" required>
+    <input type="submit" value="提交">
+    <span style="color: red;">{{ err_msg }}</span>
+    {% csrf_token %}
+</form>
+</body>
+</html>

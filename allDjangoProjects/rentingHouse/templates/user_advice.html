@@ -1,0 +1,138 @@
+{% extends 'userinfo.html' %}
+{% load page_tag %}
+
+{% block navclass %}
+<script type="text/javascript">
+$(function(){
+    //导航定位
+    $(".nav li:eq(7)").addClass("navCur");
+    $(".vipNav dd a:eq(6)").addClass("vipNavCur");
+});
+</script>
+{% endblock %}
+
+{% block link-js %}
+    <script type="text/javascript" src="/static/js/checkCard.js"></script>
+    <link rel="stylesheet" href="/static/css/fenye.css">
+{% endblock %}
+
+{% block style %}
+<style>
+#table{
+    margin-top: 20px;
+    width: 948px;
+    font-size: 14px;
+}
+#table th{
+    text-align: left;
+}
+#table td, #table th{
+    padding: 6px 0 3px 0;
+    border-bottom: 1px solid #ccc;
+    margin-left: 10px;
+}
+td.acticed{
+    text-align: center;
+}
+.advicecontent{
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
+{% block vip-right %}
+    <div class="vip-right">
+     <h3 class="vipright-title">我的申诉建议</h3>
+     {% if page_obj %}
+         {% for item in page_obj %}
+            {% autoescape off %}
+            {{ item.advices }}
+             {% endautoescape %}
+         {% endfor %}
+{#     <table id="table" cellpadding="0" cellspacing="0">#}
+{#         <tr>#}
+{#             <th>申诉内容</th>#}
+{#             <th>申诉时间</th>#}
+{#             <th>回复</th>#}
+{#             <th>操作</th>#}
+{#         </tr>#}
+{#        {% for item in page_obj %}#}
+{#         <tr>#}
+{#             <td><span class="tdstr advicecontent" title="{{ item.advices }}">{% autoescape off %}{{ item.advices }}{% endautoescape %}</span></td>#}
+{#             <td>{{ item.add_time | date:'Y-m-d H:i:s' }}</td>#}
+{#             <td><span class="tdstr advicereversion" title="{% if item.reversion %}{{ item.reversion }}">{{ item.reversion }}{% else %}暂无回复">暂无回复{% endif %}</span></td>#}
+{#             <td><button onclick="advicecontentbtn({{ item.id }})" >删除</button></td>#}
+{#            </tr>#}
+{#        {% endfor %}#}
+{#     </table>#}
+         <script>
+            var obj = document.getElementById('table').getElementsByClassName('tdstr');
+            for(var i=0; i<obj.length; i++){
+                obj[i].innerHTML=obj[i].innerHTML.substring(0, 20)+'...';
+            }
+        </script>
+         {% if page_obj.paginator.num_pages > 1 %}
+
+            <div class="paginator">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+                    {% endif %}
+                    {% for pg in page_obj.paginator.page_range %}
+                        {% circle_page page_obj.number pg %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+             {% else %}{% endif %}
+    {% else %}
+     无。。。
+    {% endif %}
+    </div><!--vip-right/-->
+    <script>
+    $(function () {
+        $('.advicecontent').click(function () {
+            var content = $(this).attr('title');
+            var reversion = $(this).parent().nextAll('td').find('.advicereversion').attr('title');
+            var message1 = '<span style="color: yellow">建议内容: </span>' + content;
+            var message2 = '<span style="color: yellow">回复内容: </span>' + reversion;
+            layer.msg(message1+'<hr>'+message2, {
+                time: 2000000,
+                btn: ['知道了',]
+            });
+        });
+
+    });
+    function advicecontentbtn(id) {
+        layer.confirm('确定要删除这条建议吗?', {
+            btn: ['确定', '取消'],
+        }, function (index) {
+            $.ajax({
+                url: '/userinfo/advice/',
+                data: {
+                    'id': id,
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                },
+                type: 'post',
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.result == 1) {
+                        layer.msg(data.msg, {'icon': 1});
+                        setTimeout(function () {
+                            location.reload()
+                        }, 2000);
+                    } else {
+                        layer.msg(data.msg, {'icon': 2});
+                    }
+                },
+                error: function () {
+                    layer.msg('异常错误', {'icon': 2});
+                }
+            })
+        });
+    }
+    </script>
+{% endblock %}

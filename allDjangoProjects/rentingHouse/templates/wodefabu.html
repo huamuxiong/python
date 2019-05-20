@@ -1,0 +1,145 @@
+{% extends 'userinfo.html' %}
+{% load page_tag %}
+{% block style %}
+    <style>
+        input:focus, textarea:focus{outline:none;}
+    .zdgf{
+            margin-top: 20px;
+            width: 948px;
+            font-size: 14px;
+        }
+        .zdgf th{
+            text-align: left;
+        }
+        .zdgf td, .zdgf th{
+            padding: 6px 0 3px 0;
+            border-bottom: 1px solid #ccc;
+            margin-left: 10px;
+        }
+    .updatefabu{
+        display: inline-block;
+        padding: 1px 5px;
+        background-color: #4cae4c;
+        transition: color .5s;
+    }
+    .updatefabu:hover{
+        cursor: pointer;
+        color: #afd9ee;
+    }
+    .deletefabu{
+        display: inline-block;
+        padding: 2px 6px;
+        background-color: #1da7ee;
+        border: 0;
+        transition: color .5s;
+    }
+    .deletefabu:hover{
+        cursor: pointer;
+        color: #afd9ee;
+    }
+    </style>
+{% endblock %}
+{% block link-js %}
+    <link rel="stylesheet" href="/static/css/fenye.css">
+{% endblock %}
+{% block navclass %}
+<script type="text/javascript">
+$(function(){
+    //导航定位
+    $(".nav li:eq(7)").addClass("navCur");
+    $(".vipNav dd a:eq(8)").addClass("vipNavCur");
+});
+</script>
+{% endblock %}
+{% block  vip-right %}
+    <div class="vip-right">
+        <h3 class="vipright-title">我的发布</h3>
+        {% if page_obj %}
+                {% csrf_token %}
+                <table class="zdgf" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <th>标题</th>
+                        <th>地区</th>
+                        <th>位置</th>
+                        <th>发布时间</th>
+                        <th>租金</th>
+                        <th>发布状态</th>
+                        <th>操作</th>
+                    </tr>
+                {% for house in page_obj %}
+                    <tr>
+                        <td><a href="/pro_zu_info/{{ house.houseR.id }}">{{ house.houseR.title }}</a></td>
+                        <td>{{ house.houseR.village }}</td>
+                        <td>{{ house.houseR.location }}</td>
+                        <td>{{ house.mod_time | date:'Y-m-d' }}</td>
+                        <td>{{ house.houseR.unit_price }}元/月</td>
+                        <td>{% if house.houseR.isFabu %}发布成功{% else %}审核中{% endif %}</td>
+                        <td>
+                            <a onclick="updateFabu({{ house.houseR.id }})" class="updatefabu">修改</a>
+                            <button onclick="deleteFabu({{ house.houseR.id }})" class="deletefabu">删除</button></td>
+                    </tr>
+                {% endfor %}
+                </table>
+                {% if page_obj.paginator.num_pages > 1 %}
+
+            <div class="paginator">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+                    {% endif %}
+                    {% for pg in page_obj.paginator.page_range %}
+                        {% circle_page page_obj.number pg %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+             {% else %}{% endif %}
+        {% else %}
+            您还未发布任何房源信息, 赶快发布吧~
+        {% endif %}
+    </div><!--vip-right/-->
+    <div class="clearfix"></div>
+
+    <script>
+    function updateFabu(houseid) {
+        houseid = houseid.toString()
+        layer.open({
+            type: 2,
+            title: '修改发布的信息',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['100%', '100%'],
+            content: '/userinfo/updateFabu/?id='+houseid,
+        })
+    }
+
+    function deleteFabu(houseid) {
+        layer.confirm('确定要删除吗?', {
+            btn: ['确定', '取消'],
+        }, function (index) {
+            $.ajax({
+                type: 'post',
+                url: '/userinfo/deleteFabu/',
+                data: {
+                    houseid: houseid,
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                },
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    if(data.status == 1){
+                        layer.msg('删除成功', {'icon': 1});
+                        setTimeout(function () {
+                            location.reload()
+                        }, 2000);
+                    }else{
+                        layer.msg('删除失败', {'icon': 2});
+                    }
+                }
+            });
+        });
+    }
+    </script>
+{% endblock %}

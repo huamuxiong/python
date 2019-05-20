@@ -1,0 +1,85 @@
+{% extends 'userinfo.html' %}
+{% block navclass %}
+<script type="text/javascript">
+$(function(){
+    //导航定位
+    $(".nav li:eq(7)").addClass("navCur");
+    $(".vipNav dd a:eq(1)").addClass("vipNavCur");
+});
+</script>
+{% endblock %}
+
+{% block vip-right %}
+    <div class="vip-right">
+     <h3 class="vipright-title">修改密码</h3>
+        {% csrf_token %}
+     <table class="grinfo">
+      <tbody>
+        <tr>
+        <th>新密码：</th>
+        <td>
+        <input class="inp inw password" type="password" id="new_password" placeholder="不少于6位">
+        </td>
+        </tr>
+        <tr>
+        <th>重复新密码：</th>
+        <td>
+        <input class="inp inw checkpassword" type="password" id="new_password1" placeholder="不少于6位">
+        </td>
+        </tr>
+        <tr>
+        <th>&nbsp;</th>
+        <td colspan="2">
+        <label class="butt" id="butt">
+        <div class="member_mod_buttom resetPwd">保存</div>
+        </label>
+        </td>
+        </tr>
+        </tbody>
+     </table>
+    </div><!--vip-right/-->
+    <div class="clearfix"></div>
+    <script type="text/javascript" src="/static/js/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="/static/layer/layer.js"></script>
+<script>
+    $(function(){
+        $('.resetPwd').click(function () {
+            csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            password = $('.password').val();
+            checkpassword = $('.checkpassword').val();
+            if(!password){
+                layer.alert('密码不能为空');
+                return false
+            }
+            if(password.length < 6 || password.length > 12){
+                layer.alert('密码只能在6-12位之间');
+                return false
+            }
+            if(password != checkpassword){
+                layer.alert('密码不一致！');
+                return false
+            }
+            $.ajax({
+                url: '/userinfo/reset_pwd/',
+                type: 'POST',
+                data: {
+                   password: password
+                },
+                headers :{'X-CSRFToken':csrf},
+                async : false,
+                dataType: 'json',
+                success: function (data) {
+                    if(data.result == 1){
+                        layer.msg(data.msg, {'icon': 1});
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                    }else{
+                        layer.alert('出错啦')
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,160 @@
+
+{% extends 'index.html' %}
+{% load base_simple_tag %}
+{% load page_tag %}
+
+{% block navclass %}
+<script type="text/javascript">
+    $(function(){
+        //导航定位
+        $(".nav li:eq(1)").addClass("navCur");
+    });
+</script>
+{% endblock %}
+
+{% block link-js %}
+    <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+{% endblock %}
+
+{% block style %}
+    <style>
+        dt{
+            overflow: hidden;
+        }
+        dt img{
+            border-radius: 5px;
+        }
+        ul.pagination{
+            margin-top: 20px;
+            margin-left: 557px;
+            height: 50px;
+        }
+        ul.pagination li{
+            float: left;
+            padding: 5px 10px;
+            margin-right: 5px;
+            background-color: #F5F5F5;
+        }
+        ul.pagination li.active{
+            color: #7abc2c;
+            background-color: #2e6da4;
+        }
+        .xuanze{
+            margin-bottom: 5px;
+        }
+        .xuanze a{
+            display: inline-block;
+            padding: 8px;
+        }
+        .on{
+            background-color: coral;
+            color: white;
+        }
+        .item{
+            display: inline-block;
+            width: 300px;
+            height: 400px;
+        }
+        .item img{
+            border: 0;
+            width: 300px;
+            height: 280px;
+            overflow: hidden;
+        }
+    .active{
+        color: #0000FF;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="content">
+  <div class="width1190">
+   <div id = "computed_props">
+
+       <form action="" method="get" id="form">
+           <b>自定义搜索: </b>
+           <input type="text" placeholder="模糊查询标题" value="{{ searchTitle }}" name="searchTitle" onkeyup="this.value=this.value.replace(/\s+/g,'')">
+           <input type="text" placeholder="模糊查询位置" value="{{ searchLocation }}" name="searchLocation" onkeyup="this.value=this.value.replace(/\s+/g,'')">
+           <input type="submit" value="搜索">
+       </form>
+   </div>
+   <form action="/pro_zu/" method="get" class="pro-search">
+       <hr>
+       <h3>按条件筛选：</h3>
+       <div class="xuanze"><b>地区:</b>
+           {% action_all current_url 1 %}
+           {% for item in village_list %}
+               {% action current_url item 1 %}
+           {% endfor %}
+       </div>
+       <div class="xuanze"><b>位置:</b>
+           {% action_all current_url 2 %}
+           {% for item in location_list %}
+               {% action current_url item 2 %}
+           {% endfor %}
+       </div>
+       <div class="xuanze"><b>租金:</b>
+           {% action_all current_url 3 %}
+           {% for item in price_list %}
+               {% action current_url item 3 %}
+           {% endfor %}
+       </div>
+   </form><!--pro-search/-->
+  </div><!--width1190/-->
+  <div class="width1190"><hr>
+  {% if page_obj %}
+   <div class="pro-left">
+   <p><a class="{% ifequal sort '' %}active{% endifequal %}" href="?sort=''">全部</a> |
+       <a href="?sort=uprice" class="{% ifequal sort 'uprice' %}active{% endifequal %}">按价格 ↓</a> |
+       <a class="{% ifequal sort 'area' %}active{% endifequal %}" href="?sort=area">按面积 ↓</a>
+   </p>
+   {% for item in page_obj %}
+        <dl>
+            <dt><a href="/pro_zu_info/{{ item.id }}"><img src="{{ item.img_address }}" width="286" height="188" /></a></dt>
+            <dd>
+            <h3><a href="/pro_zu_info/{{ item.id }}">{{ item }}</a></h3>
+            <div class="pro-wei">
+                <img src="/static/images/weizhi.png" width="12" height="16" />
+                <strong class="red">{{ item.village }} - {{ item.location }}</strong>
+            </div>
+            <div class="pro-fang">{{ item.bedroom }} | {{ item.area }}m² | {{ item.direction }} | {{ item.floor }}</div>
+            <div class="pra-fa">发布时间: {{ item.release_time }}</div>
+            </dd>
+            <div class="price">¥ <strong>{{ item.unit_price }}</strong><span class="font12">元/月</span></div>
+            <div class="clears"></div>
+        </dl>
+   {% endfor %}
+
+   </div><!--pro-left/-->
+
+   <div class="clears"></div>
+   <div class="paginator">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li><a href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+            {% endif %}
+    {#        Page {{ house_list.number }} of {{ house_list.paginator.num_pages }}#}
+            {% for pg in page_obj.paginator.page_range %}
+{#                {% if house_list.number == pg %}#}
+{#                    <li class="active"><a href="?page={{ pg }}">{{ pg }}</a></li>#}
+{#                {% else %}#}
+{#                    <li><a href="?page={{ pg }}">{{ pg }}</a></li>#}
+{#                {% endif %}#}
+                {% circle_page page_obj.number pg %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li><a href="?page={{ page_obj.next_page_number }}">下一页</a></li>
+            {% endif %}
+        </ul>
+  </div>
+  {% else %}
+      <img src="/static/error/no-data.jpg" alt="">
+  {% endif %}
+  </div><!--width1190/-->
+ </div><!--content/-->
+ <script>
+
+ </script>
+{% endblock %}

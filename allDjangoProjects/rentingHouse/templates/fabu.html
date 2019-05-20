@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+	<script src="/static/js/jquery-3.2.1.js"></script>
+	<script type="text/javascript" src="/static/layui/layui.js"></script>
+
+</head>
+<body>
+<form class="layui-form" action="">
+{% csrf_token %}
+  <div class="layui-form-item">
+    <label class="layui-form-label">醒目标题</label>
+    <div class="layui-input-block">
+      <input type="text" name="title" id="title" required  lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">地区</label>
+    <div class="layui-input-block">
+      <input type="text" name="village" id="village" required  lay-verify="required" value="{{ vname }}" readonly autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">位置</label>
+    <div class="layui-input-block">
+      <select name="location" id="location" lay-verify="required">
+          <option value=""></option>
+        {% for location in locations %}
+          <option value="{{ location.id }}">{{ location.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">居室</label>
+    <div class="layui-input-block">
+      <input type="text" name="bedroom" id="bedroom" required  lay-verify="required" placeholder="请输入居室" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">占地面积</label>
+    <div class="layui-input-block">
+      <input type="text" name="area" id="area" required  lay-verify="required" placeholder="请输入房屋所占面积" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">房屋朝向</label>
+    <div class="layui-input-block">
+      <input type="text" name="direction" id="direction" required  lay-verify="required" placeholder="请输入房屋朝向, 多个请用空格隔开" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">楼层</label>
+    <div class="layui-input-block">
+      <input type="text" name="floor" id="floor" required  lay-verify="required" placeholder="请输入房屋所在楼层" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">租金</label>
+    <div class="layui-input-block">
+      <input type="text" name="unit_price" id="unit_price" required  lay-verify="required" placeholder="请输入租金" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item layui-form-text">
+    <label class="layui-form-label">详细描述</label>
+    <div class="layui-input-block">
+      <textarea name="message" id="message" placeholder="请输入内容" class="layui-textarea"></textarea>
+    </div>
+  </div>
+
+
+  <div class="layui-form-item layui-form-text">
+	<div class="layui-upload">
+		<div class="layui-row layui-col-space1">
+            <div class="layui-col-md1" style="margin-left: 60px">
+                <button type="button" class="layui-btn layui-btn-sm" id="upLoadImge" style="width: 88px; margin-left: 50px; ">图片上传</button>
+            </div>
+
+	    </div>
+        <div class="layui-upload-list" id="imgeList" style="overflow-y:auto; display: none; margin-left: 110px;float: left">
+		    <div>
+                <img  width="160" height="80" src="" data-fileid="" class="layui-upload-img" style="margin-bottom: 2px;">
+            </div>
+            <div class="layui-col-md1" style="float: left">
+                 <button type="button" class="layui-btn layui-btn-sm" id="deleteImge" style="width: 88px;">删除图片</button>
+            </div>
+            <input type="hidden" value="" class="img">
+		</div>
+    </div>
+</div>
+
+
+  <div class="layui-form-item">
+    <div class="layui-input-block">
+      <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+    </div>
+  </div>
+</form>
+</body>
+<script>
+
+layui.use('upload', function(){
+  var upload = layui.upload;
+
+  //执行实例
+  var uploadInst = upload.render({
+    elem: '#upLoadImge' //绑定元素
+    ,url: '/fabu/upload/' //上传接口
+    ,field: 'fileName'
+    ,done: function(res){
+        $('#upLoadImge').css('display', 'none');
+        $('#imgeList').css('display', 'block');
+        $('.layui-upload-img').attr('src', '/'+res.file_path);
+        $('.img').val('/'+res.file_path);
+
+    }
+    ,size: 100
+    ,error: function(){
+      //请求异常回调
+          alert('aaaa')
+    }
+  });
+  $('#deleteImge').click(function () {
+      $('#upLoadImge').css('display', 'block');
+      $('#imgeList').css('display', 'none');
+      $('.layui-upload-img').attr('src', '');
+      $('.img').val('');
+  });
+});
+//Demo
+layui.use('form', function(){
+  var form = layui.form;
+
+  //监听提交
+  form.on('submit(formDemo)', function(data){
+      data = {
+          title: $('#title').val(),
+          village: $('#village').val(),
+          location: $('#location').val(),
+          area: $('#area').val(),
+          bedroom: $('#bedroom').val(),
+          direction: $('#direction').val(),
+          floor: $('#floor').val(),
+          unit_price: $('#unit_price').val(),
+          message: $('#message').val(),
+          img: $('.img').val(),
+          csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+      };
+
+      $.ajax({
+          url: '/fabu/',
+          type: 'post',
+          data: data,
+          async: false,
+          dataType: 'json',
+          success: function (data) {
+              if(data.result == 1){
+                  layer.msg('已发布, 等待审核中~', {'icon': 1})
+              }else{
+                  layer.msg('发布失败', {'icon': 2})
+              }
+          }
+      });
+      return false;
+  });
+});
+</script>
+</body>
+</html>

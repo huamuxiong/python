@@ -1,0 +1,248 @@
+{% extends 'userinfo.html' %}
+
+{% block navclass %}
+<script type="text/javascript">
+$(function(){
+    //导航定位
+    $(".nav li:eq(7)").addClass("navCur");
+    $(".vipNav dd a:eq(5)").addClass("vipNavCur");
+});
+</script>
+{% endblock %}
+{% block link-js %}
+    <script type="text/javascript" src="/static/js/checkCard.js"></script>
+{% endblock %}
+
+{% block style %}
+    <style>
+        .shenqinginfo{
+            margin-top: 40px;
+        }
+        .grinfo {
+            width: 100%;
+            border: none;
+            border-collapse: collapse;
+            margin: 10px auto 36px;
+        }
+        .shenhezhong{
+            width: 40px;
+            padding: 3px 6px;
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+        .spansh{
+            color:red
+        }
+    </style>
+{% endblock %}
+
+{% block vip-right %}
+    <div class="vip-right">
+     <h3 class="vipright-title">申请社区自由经纪人(<span class="spansh">{% if agent and agent.isActive == 1 %}您已审核通过(修改请联系下方管理员){% elif agent and agent.isActive == 0 %}审核中{% else %}一定要先完善个人资料,否则很难通过{% endif %})</span></h3>
+        <form action="">
+            {% csrf_token %}
+            <input id="avatar" type="hidden" value="{{ user.headPortrait }}" name="avatar" style="width: 400px">
+        </form>
+
+     <dl class="vip-touxiang">
+
+         <input id="avatarSlect" type="file" style="position: absolute;float: left; z-index: 10; opacity: 0;width: 100px; height: 100px;">
+      <dt><img id="avatarPreview" src="{% if agent %}{{ agent.img }}{% else %}/static/images/morenheadpic.png{% endif %}" title="点击更换图片" style="width: 110px; height: 135px"></dt>
+      <dd>
+          <input type="hidden" class="zhaopianimg" value="">
+       <h3><strong>点击图片上传照片</strong></h3><br/><br>
+       <p>图片格式：JPG、JPEG、PNG ，最适合尺寸100*100像素</p>
+      </dd>
+     <div class="clearfix"></div>
+     </dl><!--vip-touxiang/-->
+     <h3 style="margin-top: 50px">请填写个人信息</h3>
+     <hr>
+     <table class="grinfo shenqinginfo" style="margin-top: 20px">
+        <tbody>
+            <tr>
+                <th>申请用户：</th>
+                <td> <strong>{{ username }}</strong></td>
+            </tr>
+            <tr>
+                <th><span class="red">*</span> 真实姓名：</th>
+                <td>
+                    <input class="inp inw" type="text" maxlength="15" value="{{ agent.relname }}" id="realname">
+                </td>
+            </tr>
+            <tr>
+                <th><span class="red">*</span> 身份证信息：</th>
+                <td>
+                    <input class="inp inw" type="text" id="ID_card" value="{{ agent.identity }}">
+                </td>
+            </tr>
+            <tr>
+                <th><span class="red"></span> 工作年限：</th>
+                <td>
+                    <input class="inp inw" type="text" id="work_years" value="{{ agent.workage }}" maxlength="2">年
+                </td>
+            </tr>
+            <tr>
+                <th><span class="red"></span> 显示个人电话：</th>
+                <td>
+                    <input type="radio" value="1" id="rbShowtel1" name="is_showtel" checked>
+                        <label for="rbShowtel1">是</label>
+                    <input type="radio" value="0" id="rbShowtel2" name="is_showtel"{% if agent and agent.isTelephone == 0 %}checked{% endif %}>
+                        <label for="rbShowtel2">否</label>
+                        （是否允许前台显示个人电话，如果不允许我们将为你提供400转接服务）
+                </td>
+            </tr>
+            <tr>
+                <th><span class="red"></span> 选择服务商圈：</th>
+                <td>
+                    <select id="bee_county1">
+                    {% for village in village_list %}
+                        <option value="{{ village.id }}" {% if agent and agent.villageAgent_id == village.id %}selected{% endif %}>{{ village.name }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th></th>
+                <td><input type="hidden" class="telephone" value="{{ user.telephone }}"></td>
+            </tr>
+        </tbody>
+     </table>
+     <h3>请填写个人描述</h3>
+     <hr>
+     <table class="grinfo shenqinginfo">
+        <tbody>
+            <tr>
+                <th valign="top">个人描述：</th>
+                <td>
+                    <textarea id="sign" class="grtextarea">{% if agent %}{{ agent.message }}{% endif %}</textarea>
+                    <br>
+                    <span class="fgrey">(128字符以内)</span>
+                </td>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <td colspan="2">
+                    <label class="butt" id="butt">
+                        {% if agent %}
+                            {% if agent.isActive == 0 %}
+                                <div class="shenhezhong">审核中</div>
+                            {% endif %}
+                        {% else %}
+                             <div class="member_mod_buttom" onclick="mod_member_bee1()">提交申请</div>
+                        {% endif %}
+                    </label>
+                </td>
+            </tr>
+        </tbody>
+     </table>
+    </div><!--vip-right/-->
+    <div class="clearfix"></div>
+<script>
+$(function () {
+    bindAvatar1();
+ });
+    /*Ajax上传至后台并返回图片的url*/
+  function bindAvatar1() {
+
+    $("#avatarSlect").change(function () {
+        var path = $(this).val();
+        extStart = path.lastIndexOf('.');
+        ext = path.substring(extStart, path.length).toUpperCase();
+        // 判断图片的格式
+        if (ext != '.JPG' && ext != '.JPEG' && ext != '.PNG'){
+            layer.msg('请上传正确格式的图片', {'icon': 2});
+            return false
+        }else {
+            var size = this.files[0].size / 1024;
+            if(size > 10240){
+                layer.msg('哎呀，图片太大了，不要超过10M哟~', {'icon': 2});
+                return false
+            }else {
+                var csrf = $("input[name='csrfmiddlewaretoken']").val();
+                var filename = $("#avatarSlect")[0].files[0];
+                var formData = new FormData();
+                formData.append("csrfmiddlewaretoken", csrf);
+                formData.append('avatar', $("#avatarSlect")[0].files[0]);
+                /*获取上传的图片对象*/
+                $.ajax({
+                    url: '/userinfo/upload_zhaopian/',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (args) {
+                        layer.msg('照片上传成功', {'icon': 1});
+                        $('.zhaopianimg').val('/' + args);
+                        $("#avatarPreview").attr('src', '/' + args);
+                        /*预览图片*/
+                        $("#avatar").val('/' + args);
+                        /*将服务端的图片url赋值给form表单的隐藏input标签*/
+                    }
+                });
+            }
+        }
+    });
+  }
+  function mod_member_bee1() {
+      var telephone = $.trim($('.telephone').val());
+      if(telephone == ''){
+          layer.alert('请先完善个人信息');
+          return false
+      }
+      var zhaopianimg = $.trim($('.zhaopianimg').val());
+      if(zhaopianimg == ''){
+          layer.alert('请先上传照片!');
+          return
+      }
+      var realname = $.trim($('#realname').val());
+      if(realname == ''){
+          layer.alert('请填写真实姓名!');
+          return
+      }
+      var ID_card = $.trim($('#ID_card').val());
+      if (!checkCard(ID_card)) {
+            layer.alert("请输入正确的身份证号码");
+          return false;
+      }
+      var workage = $.trim($('#work_years').val());
+      var is_showtel = $('input[name="is_showtel"]:checked').val();
+      var bee_village = $('#bee_county1').val();
+      var grtextarea = $.trim($('.grtextarea').val());
+      var imgaddr = $('.zhaopianimg').val();
+
+      layer.confirm('确定提交吗?', {
+          btn: ['确定', '取消'],
+      }, function (index) {
+          $.ajax({
+              url: '/userinfo/user_shenqing/',
+              type: 'post',
+              data: {
+                  realname: realname,
+                  ID_card: ID_card,
+                  workage: workage,
+                  is_showtel: is_showtel,
+                  bee_village: bee_village,
+                  grtextarea: grtextarea,
+                  imgaddr: imgaddr,
+                  csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+              },
+              async: false,
+              dataType: 'json',
+              success: function (data) {
+                  if(data.flag == 1){
+                      layer.msg('申请已提交, 请等待管理员的审核', {'icon': 1});
+                      setTimeout(function () {
+                          location.reload()
+                      }, 2000)
+                  }else{
+                      layer.alert('失败')
+                  }
+              }
+          });
+      });
+  }
+    </script>
+{% endblock %}
+
+{% block scriptuserinfo %}
+{% endblock %}

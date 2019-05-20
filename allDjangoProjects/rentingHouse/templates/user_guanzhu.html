@@ -1,0 +1,95 @@
+{% extends 'userinfo.html' %}
+{% load page_tag %}
+
+{% block link-js %}
+    <link rel="stylesheet" href="/static/css/fenye.css">
+{% endblock %}
+{% block navclass %}
+<script type="text/javascript">
+$(function(){
+    //导航定位
+    $(".nav li:eq(7)").addClass("navCur");
+    $(".vipNav dd a:eq(2)").addClass("vipNavCur");
+});
+</script>
+{% endblock %}
+{% block style %}
+    <style>
+        .qxgzBtn{
+            background-color: #fff;
+            border: 1px solid #ccc;
+            color: #999999;
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+
+{% block vip-right %}
+    <div class="vip-right">
+     <h3 class="vipright-title">租房关注</h3>
+     <div class="guanzhulist">
+     {% csrf_token %}
+     {% if page_obj %}
+      {% for house in page_obj %}
+         <dl>
+             <dt><a href="/pro_zu_info/{{ house.houseF.id }}"><img src="{{ house.houseF.img_address }}" width="190" height="128" /></a></dt>
+             <dd style=" width: 370px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                 <input type="hidden" class="hiddenqxgz" value="{{ house.houseF.id }}">
+                 <h3 style="font-size: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis"><a href="/pro_zu_info/{{ house.houseF.id }}">{{ house.houseF.title }}</a></h3>
+                 <div class="guantext">{{ house.houseF.village }} - {{ house.houseF.location }}</div>
+                 <div class="guantext">{{ house.houseF.bedroom }} | {{ house.houseF.area }} | {{ house.houseF.direction }}</div>
+                 <div class="guantext2">关注时间：{{ house.add_time | date:'Y-m-d H:i' }}    <button class="qxgzBtn" onclick="deleteGz({{ house.houseF.id }})"> 取消关注</button></div>
+             </dd>
+             <div class="price">¥ <strong>{{ house.houseF.unit_price }}</strong><span class="font12">元/月</span></div>
+             <div class="clearfix"></div>
+          </dl>
+      {% endfor %}
+         {% else %}暂无关注信息........
+     {% endif %}
+     {% if page_obj.paginator.num_pages > 1 %}
+
+            <div class="paginator">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+                    {% endif %}
+                    {% for pg in page_obj.paginator.page_range %}
+                        {% circle_page page_obj.number pg %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+             {% else %}{% endif %}
+     </div><!--guanzhulist/-->
+    </div><!--vip-right/-->
+    <script>
+        function deleteGz(houseid) {
+            layer.confirm('确定要取消关注吗?', {
+                btn: ['确定', '取消'], //按钮
+            }, function (index) {
+                $.ajax({
+                    type: 'post',
+                    url: '/userinfo/user_guanzhu/',
+                    data: {houseid: houseid},
+                    async: false,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.flag == 1){
+                            layer.msg('取消关注成功', {icon: 1});
+                            setTimeout(function () {
+                                location.reload()
+                            }, 2000);
+                        }else{
+                            layer.msg('取消关注失败', {icon: 2});
+                        }
+                    },
+                    error: function () {
+                        layer.msg('出错了', {'icon': 2})
+                    }
+                });
+            });
+        }
+    </script>
+{% endblock %}

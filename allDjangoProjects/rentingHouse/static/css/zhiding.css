@@ -1,0 +1,32 @@
+#fathor{
+    position: relative;
+}
+#son{
+    position: absolute;
+    top: 120px;
+    right: 110px;
+}
+#son a{
+    text-decoration:none;
+    color: #afd9ee;
+    display: inline-block;
+    border-radius: 3px;
+    padding: 5px 10px;
+    margin-left: 15px;
+    transition: background-color .5s;
+}
+#son a:first-child{
+    background-color: #4cae4c;
+}
+#son a:last-child{
+    background-color: #1b6d85;
+}
+#son a:hover{
+    background-color: #66512c;
+}
+.zhidingtext{
+    padding: 20px 40px;
+}
+.zhidingtext p{
+    font-size: 13px;
+}

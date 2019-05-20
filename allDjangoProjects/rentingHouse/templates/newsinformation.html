@@ -1,0 +1,109 @@
+{% extends 'index.html' %}
+{% load page_tag %}
+{% block style %}
+    <style>
+        .newstr{
+            display: inline-block;
+            width: 500px;
+            overflow:hidden;
+            word-break:keep-all;
+            white-space:nowrap;
+            text-overflow:ellipsis;
+        }
+        ul.newsul{
+            margin-top: 10px;
+            width: 800px;
+        }
+        ul.newsul li{
+            font-size: 18px;
+            border-bottom: 1px solid #C8C8C8;
+        }
+        ul.newsul li:hover{
+            color: #000;
+            border-bottom: 1px dashed #4cae4c;
+        }
+        ul.newsul li span{
+            float: right;
+        }
+        .newsleft{
+            width: 800px;
+            float: left;
+            margin-bottom: 20px;
+        }
+        .newsright{
+            width: 350px;
+            float: left;
+            margin-left: 38px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .newsright .newstr{
+            display: inline-block;
+            width: 340px;
+            overflow:hidden;
+            word-break:keep-all;
+            white-space:nowrap;
+            text-overflow:ellipsis;
+        }
+    </style>
+{% endblock %}
+
+{% block navclass %}
+    <script type="text/javascript">
+        $(function(){
+	        //导航定位
+	        $(".nav li:eq(6)").addClass("navCur");
+	    });
+    </script>
+{% endblock %}
+
+{% block link-js %}
+    <link rel="stylesheet" href="/static/css/fenye.css">
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="width1190">
+        <div class="newsleft">
+            <h1>热门新闻列表</h1>
+            {% if page_obj %}
+            <ul class="newsul">
+                {% for item in page_obj %}
+                <li><a class="newstr" href="/newsinfo/{{ item.id }}" title="{{ item.title }}" target="_blank">{{ item.title }}</a><span class="newstime">{{ item.create_time | date:'Y-m-d H:i:s' }}</span></li>
+                {% endfor %}
+            </ul>
+                {% if page_obj.paginator.num_pages > 1 %}
+
+                <div class="paginator">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li><a href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+                        {% endif %}
+                        {% for pg in page_obj.paginator.page_range %}
+                            {% circle_page page_obj.number pg %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                            <li><a href="?page={{ page_obj.next_page_number }}">下一页</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                 {% else %}{% endif %}
+            {% else %}
+                暂无新闻消息...
+            {% endif %}
+        </div>
+        <div class="newsright">
+            <h2>以往新闻</h2>
+            {% if news_list2 %}
+                <ul class="newsul">
+                    {% for item in news_list2 %}
+                        {% if forloop.counter0 < 10 %}
+                            <li><a class="newstr" href="/newsinfo/{{ item.id }}">{{ item.title }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

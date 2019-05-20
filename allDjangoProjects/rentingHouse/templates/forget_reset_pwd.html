@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form action="{% url 'modify_pwd' %}" method="post">
+    <p><input type="email" name="email" value="{{ email }}" readonly></p>
+    <p><input type="password" name="password1" value="{{ pwd1 }}" placeholder="请输入密码" required></p>
+    <p><input type="password" name="password2" value="{{ pwd2 }}" placeholder="请再次输入密码" required></p>
+    {% csrf_token %}
+    <p><input type="submit" value="提交"></p>
+    <p><span style="color: red;">{{ err_msg }}</span></p>
+</form>
+</body>
+</html>

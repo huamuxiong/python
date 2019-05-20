@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+	<script src="/static/js/jquery-3.2.1.js"></script>
+	<script type="text/javascript" src="/static/layui/layui.js"></script>
+    <link rel="stylesheet" href="/static/css/zhiding.css">
+    <script type="text/javascript" src="/static/js/zhiding.js"></script>
+    <style>
+        .layui-input-block{
+            width: 70%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="zhidinggoufang" style="margin-top: 10px">
+    <form action="" class="layui-form">
+        <input type="hidden" name="zhidingid" value="{{ specify.id }}">
+        <div class="layui-form-item">
+            <label class="layui-form-label">地区</label>
+            <div class="layui-input-block">
+                <select name="village" lay-filter="village" lay-verify="required" lay-search>
+                    {% for village in villages %}
+                    <option value="{{ village.id }}" {% if specify.villageS_id == village.id %}selected{% endif %}>{{ village.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">位置</label>
+            <div class="layui-input-block">
+                <select name="location" id="location" lay-filter="location" lay-verify="required" lay-search>
+                     {% for location in locations %}
+                     <option value="{{ location.id }}" {% if location.id == specify.location %}selected{% endif %}>{{ location.name }}</option>
+                     {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">详细地址</label>
+            <div class="layui-input-block">
+                <input type="text" name="address" value="{% if specify.addressinfo %}{{ specify.addressinfo }}{% endif %}" required  lay-verify="required" placeholder="请输入详细地址" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">类型</label>
+            <div class="layui-input-block">
+                <select name="type" id="type" lay-verify="required">
+                     <option value=""></option>
+                     <option value="zufang"{% if specify.housetype == 'zufang' %}selected{% endif %}>租房</option>
+                     <option value="xinfang"{% if specify.housetype == 'xinfang' %}selected{% endif %}>新房</option>
+                     <option value="ershoufang"{% if specify.housetype == 'ershoufang' %}selected{% endif %}>二手房</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">联系方式</label>
+            <div class="layui-input-block">
+                <input type="text" name="telephone" value="{% if specify.telephone %}{{ specify.telephone }}{% endif %}" required  lay-verify="required" placeholder="请输入联系方式" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+        {% csrf_token %}
+    </form>
+
+    <div class="zhidingtext">
+        <h4>指定购房注意事宜：</h4>
+            <p>1、制定购房要求用户注册并登陆才可以</p>
+            <p>2、您最好是详细的输入房源地址(精确到小区)，有利于系统更好的给您推荐</p>
+            <p>3、制定购房申请提交后，客服中心会在24小时之内与您取得联系</p>
+            <p>4、如有任何疑问，请随时拨打我们的电话：400-000-0000</p>
+            <p>5、Leyton 个人邮箱：leyton@163.com</p>
+    </div><!--zhidingtext/-->
+ </div><!--zhidinggoufang/-->
+</body>
+</html>
+<script>
+    layui.use(['layer', 'jquery', 'form'], function() {
+        var layer = layui.layer,
+            $ = layui.jquery,
+            form = layui.form;
+        form.on('select(village)', function (data) {
+            if(data.value != ''){
+                location(data.value);
+            }
+        });
+        function location(village){
+            var url = '/ajax-location/';
+            var data = {'village_id': village};
+            $.ajax({
+                type: 'post',
+                url: url,
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    var html = '<option value=""></option>';
+                    $.each(data, function (key, obj) {
+                        html += '<option value="'+ obj.pk +'">' + obj.fields['name'] +'</option>'
+                    });
+                    $('[name=location]').html(html);
+                    form.render('select');
+                }
+            });
+        }
+        //监听提交
+        form.on('submit(formDemo)', function(data){
+            var formDate = data.field;
+            id = formDate.zhidingid;
+            village_id = formDate.village;
+            location_id = formDate.location;
+            address = formDate.address;
+            type = formDate.type;
+            telephone = formDate.telephone;
+            var myreg = /^(((13[0-9]{1})|(14[0-9]{1})|(17[0]{1})|(15[0-3]{1})|(15[5-9]{1})|(18[0-9]{1}))+\d{8})$/;
+            if(!myreg.test(telephone)){
+                layer.msg('不是有效的手机号', {'icon': 2});
+                return false
+            }else{
+                ajax_submit(id, village_id, location_id, address, type, telephone)
+            }
+            return false
+        });
+        function ajax_submit(id, village_id, location_id, address, type, telephone) {
+            data = {
+                    'id': id,
+                    'village_id': village_id,
+                    'location_id': location_id,
+                    'address': address,
+                    'type': type,
+                    'telephone': telephone
+                };
+            $.ajax({
+                type: 'post',
+                url: '/userinfo/Supdate/',
+                data: data,
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    if(data.flag == 1){
+                        layer.msg('提交成功~', {'icon': 1});
+                    }else{
+                        layer.msg('提交失败', {'icon': 2});
+                    }
+                }
+            });
+        }
+    });
+</script>

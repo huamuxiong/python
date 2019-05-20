@@ -1,0 +1,266 @@
+{% extends 'index.html' %}
+{% block style %}
+    <style>
+        input:focus, textarea:focus{outline:none;}
+    </style>
+{% endblock %}
+{% block navclass %}
+<script type="text/javascript">
+    $(function(){
+        //导航定位
+        $(".nav li:eq(7)").addClass("navCur");
+        $(".vipNav dd a:eq(0)").addClass("vipNavCur");
+    });
+</script>
+{% endblock %}
+{% block content %}
+ <div class="content">
+  <div class="width1190">
+   <div class="vip-left">
+       <div class="vipNav">
+        <h3 class="vipTitle">会员中心</h3>
+        <dl>
+         <dt class="vipIcon3">账户设置</dt>
+          <dd>
+           <a href="/userinfo/">我的资料</a>
+           <a href="/userinfo/reset_pwd/">账户密码设置</a>
+          </dd>
+         <dt class="vipIcon1">我的leyton</dt>
+          <dd>
+           <a href="/userinfo/user_guanzhu/">关注房源</a>
+           <a href="/userinfo/user_history/">我的足迹</a>
+           <a href="/userinfo/user_zhiding/">我的指定购房</a>
+           <a href="/userinfo/user_shenqing/">申请经纪人</a>
+           <a href="/userinfo/advice/">我的申诉</a>
+           <a href="/userinfo/usercomment/">我的评论</a>
+           {% if agent and agent.isActive == 1 %}
+               <a href="/userinfo/wodefabu/">我的发布</a>
+           {% endif %}
+          </dd>
+        </dl>
+       </div><!--vipNav/-->
+    </div><!--vip-left/-->
+   {% block vip-right %}
+    <div class="vip-right">
+     <h3 class="vipright-title">修改头像</h3>
+        <form action="">
+            {% csrf_token %}
+            <input id="avatar" type="hidden" value="{{ user.headPortrait }}" name="avatar" style="width: 400px">
+        </form>
+
+     <dl class="vip-touxiang">
+
+         <input id="avatarSlect" type="file" style="position: absolute;float: left; z-index: 10; opacity: 0;width: 100px; height: 100px;">
+      <dt><img id="avatarPreview" src="{{ user.headPortrait }}" title="点击更换图片" style="position: absolute; z-index: 9; float: left; width: 100px; height: 100px"></dt>
+      <dd>
+       <h3><strong>点击图片上传头像</strong></h3><br/><br>
+{#       <div class="sctx"><input type="file" /><a href="javascript:;">上传</a></div>#}
+       <p>图片格式：JPG、JPEG、PNG ，最适合尺寸100*100像素</p>
+      </dd>
+     <div class="clearfix"></div>
+     </dl><!--vip-touxiang/-->
+     <h3 class="vipright-title">修改资料</h3>
+     {% csrf_token %}
+        <table class="grinfo">
+        <tbody>
+        <tr>
+        <th>用户名：</th>
+        <td> <strong>{{ user.username }}</strong>
+        </td>
+        </tr>
+        <tr>
+        <th>性 &nbsp; &nbsp;别：</th>
+        <td>
+            <select name="gender" id="" class="gender">
+                <option value="male" selected>男</option>
+                <option value="female" {% if user and user.gender == 'female' %}selected{% endif %}>女</option>
+            </select>
+        </td>
+        </tr>
+        <tr>
+        <th>手 &nbsp;&nbsp;&nbsp;机：</th>
+        <td>
+        <input class="inp inw telephone" type="text" maxlength="15" value="{% if user.telephone %}{{ user.telephone }}{% else %}{% endif %}" id="telephone">
+        </td>
+        </tr>
+        <tr>
+        <th><span class="red"></span> 出生年月：</th>
+        <td>
+            <input type="text" class="inp inw birthday" value="{% if user.birthday %}{{ user.birthday|date:'Y-m-d' }}{% endif %}" >
+        </td>
+        </tr>
+        <tr>
+        <th>&nbsp;Q &nbsp; &nbsp;Q：</th>
+        <td>
+        <input class="inp inw QQ" type="text" maxlength="15" value="{% if user.QQ %}{{ user.QQ }}{% else %}{% endif %}" id="qq">
+        </td>
+        </tr>
+
+        <tr>
+        <th valign="top">个性签名：</th>
+        <td>
+        <textarea id="sign" class="grtextarea signtrue">{% if user.signature %}{{ user.signature }}{% else %}{% endif %}</textarea>
+        <br>
+        <span class="fgrey">(128字符以内)</span>
+        </td>
+        </tr>
+        <tr>
+        <th>&nbsp;</th>
+        <td colspan="2">
+        <label class="butt" id="butt">
+        <input type="submit" class="member_mod_buttom" value="保存" />
+        </label>
+        </td>
+        </tr>
+        </tbody>
+      </table>
+    </div><!--vip-right/-->
+   {% endblock %}
+    <div class="clearfix"></div>
+  </div><!--width1190/-->
+ </div><!--content/-->
+{% block scriptuserinfo %}
+    <script>
+  $(function () {
+      bindAvatar1();
+      updateUserinfo();
+ });
+  // 修改资料
+  function updateUserinfo() {
+      $('.member_mod_buttom').click(function () {
+          csrf = $('input[name="csrfmiddlewaretoken"]').val();
+          var gender = $('.gender').val();
+          var telephone = $('.telephone').val();
+          var myreg = /^(((13[0-9]{1})|(14[0-9]{1})|(17[0]{1})|(15[0-3]{1})|(15[5-9]{1})|(18[0-9]{1}))+\d{8})$/;
+          if(telephone == '' || telephone == null){
+              layer.msg('手机不可以为空!', {'icon': 2});
+              return false
+          }else if(!myreg.test(telephone)){
+              layer.msg('不是有效的手机号!', {'icon': 2})
+              return false
+          }
+          var birthday = $('.birthday').val();
+          if(birthday == '' || birthday == null){
+              layer.msg('出生年月是必填项~', {'icon': 2});
+              return false
+          }else if(isNaN(birthday) && isNaN(Date.parse(birthday))){
+              layer.msg('请输入正确的日期格式，如：\n2018-12-25', {'icon': 2});
+              return false
+          }
+          var QQ = $('.QQ').val();
+          var re = /^[1-9]\d{5,11}$/;
+          if(!re.test(QQ)){
+              layer.msg('请输入正确的QQ', {'icon': 2});
+              return false
+          }
+          var signtrue = $('.signtrue').val();
+
+          $.ajax({
+              url: '/userinfo/updateUserinfo/',
+              type: 'POST',
+              data: {
+                  gender: gender,
+                  telephone: telephone,
+                  birthday: birthday,
+                  QQ: QQ,
+                  signtrue: signtrue,
+              },
+              headers :{'X-CSRFToken':csrf},
+              async : false,
+              dataType: 'json',
+              success: function (data) {
+                  if(data.status == 1){
+                      layer.msg(data.msg, {'icon': 1});
+                      setTimeout(function () {
+                          location.reload()
+                      }, 1000);
+
+                  }else{
+                      layer.msg('修改失败', {'icon': 2});
+                  }
+              },
+              error: function () {
+                  layer.msg('大概是你人缘不好吧，系统出问题了~', {'icon': 2})
+              }
+          });
+      });
+  }
+ {# function bindAvatar() {#}
+ {#     if(window.URL.createObjectURL){#}
+ {#       bindAvatar3();#}
+ {#     }else if(window.FileReader){#}
+ {#       bindAvatar2();#}
+ {#     }else {#}
+ {#       bindAvatar1();#}
+ {#     }#}
+ {# }#}
+  /*Ajax上传至后台并返回图片的url*/
+  function bindAvatar1() {
+    
+    $("#avatarSlect").change(function () {
+        var path = $(this).val();
+        extStart = path.lastIndexOf('.');
+        ext = path.substring(extStart, path.length).toUpperCase();
+        // 判断图片的格式
+        if (ext != '.JPG' && ext != '.JPEG' && ext != '.PNG'){
+            layer.msg('请上传正确格式的图片', {'icon': 2});
+            return false
+        }else {
+            var size = this.files[0].size / 1024;
+            if(size > 10240){
+                layer.msg('哎呀，图片太大了，不要超过10M哟~', {'icon': 2});
+                return false
+            }else {
+                var csrf = $("input[name='csrfmiddlewaretoken']").val();
+                var filename = $("#avatarSlect")[0].files[0];
+                var formData = new FormData();
+                formData.append("csrfmiddlewaretoken", csrf);
+                formData.append('avatar', $("#avatarSlect")[0].files[0]);
+                /*获取上传的图片对象*/
+                $.ajax({
+                    url: '/userinfo/upload_avatar/',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (args) {
+                        {#alert(args);  /*服务器端的图片地址*/#}
+                        layer.msg('头像上传成功', {'icon': 1});
+                        $("#avatarPreview").attr('src', '/' + args);
+                        /*预览图片*/
+                        $("#avatar").val('/' + args);
+                        /*将服务端的图片url赋值给form表单的隐藏input标签*/
+                    }
+                });
+            }
+        }
+    });
+  }
+
+  /*window.FileReader本地预览*/
+  function bindAvatar2() {
+    console.log(2);
+       $("#avatarSlect").change(function () {
+           var obj=$("#avatarSlect")[0].files[0];
+           var fr=new FileReader();
+           fr.onload=function () {
+               $("#avatarPreview").attr('src',this.result);
+               console.log(this.result);
+               $("#avatar").val(this.result);
+      };
+      fr.readAsDataURL(obj);
+    })
+ }
+ /*window.URL.createObjectURL本地预览*/
+ function bindAvatar3() {
+   console.log(3);
+      $("#avatarSlect").change(function () {
+          var obj=$("#avatarSlect")[0].files[0];
+          var wuc=window.URL.createObjectURL(obj);
+           $("#avatarPreview").attr('src',wuc);
+           $("#avatar").val(wuc);
+   })
+ }
+</script>
+{% endblock %}
+{% endblock %}

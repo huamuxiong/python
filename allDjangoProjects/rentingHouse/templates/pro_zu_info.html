@@ -1,0 +1,523 @@
+{% extends 'index.html' %}
+{% load page_tag %}
+{% block navclass %}
+<script type="text/javascript">
+    $(function(){
+        //导航定位
+        $(".nav li:eq(1)").addClass("navCur");
+    });
+</script>
+{% endblock %}
+
+{% block style %}
+<style>
+#playBox {
+	width:500px;
+	height:300px;
+	margin:20px auto;
+	background:#333;
+	position:relative;
+	overflow:hidden;
+}
+#playBox .oUlplay {
+	width:99999px;
+	position:absolute;
+	left:0;
+	top:0;
+}
+#playBox .oUlplay li {
+	float:left;
+}
+#playBox .smalltitle {
+	width:500px;
+	height:10px;
+	position:absolute;
+	bottom:15px;
+	z-index:10
+}
+#playBox .smalltitle ul {
+	width:120px;
+	margin:0 auto;
+}
+#playBox .smalltitle ul li {
+	width:10px;
+	height:10px;
+	margin:0 5px;
+	border-radius:10px;
+	background:#ffffff;
+	float:left;
+	overflow:hidden;
+	cursor:pointer;
+}
+#playBox .smalltitle .thistitle {
+	background:#69aaec;
+}
+#playBox .pre {
+	cursor:pointer;
+	width:25px;
+	height:45px;
+	position:absolute;
+	top:150px;
+	left:10px;
+	z-index:10;
+	text-align:center
+}
+#playBox .next {
+	cursor:pointer;
+	width:25px;
+	height:45px;
+	position:absolute;
+	top:150px;
+	right:10px;
+	z-index:10;
+	text-align:center
+}
+.zhongjie img{
+    vertical-align:middle;
+}
+.zhongjie{
+    float: left;
+    margin-top: 20px;
+    margin-left: 20px;
+    width: 320px;
+    height: 200px;
+}
+
+.zhongjie_img {
+    float: left;
+    width: 120px;
+    height: 160px;
+}
+.zhongjie_info{
+    float: left;
+    margin: 10px 0 0 20px;
+}
+.guanzhuBtn{
+    padding: 13px 50px;
+    border: 0;
+    background-color: #4cae4c;
+    color: #fff;
+    font-size: 18px;
+    border-radius: 3px;
+}
+.fabushenhe{
+        font-size: 14px;
+        color: red;
+        font-weight: bold;
+        text-align: center;
+    }
+
+* {
+	margin:0;
+	padding:0;
+	list-style:none;
+}
+.headImg{
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+.comment_list{
+    width: 500px;
+    float: left;
+    margin: 20px;
+}
+.proBox{
+    width: 1000px;
+}
+
+.guanzhuBtn{
+    padding: 13px 50px;
+    border: 0;
+    background-color: #4cae4c;
+    color: #fff;
+    font-size: 18px;
+    border-radius: 3px;
+}
+.commentcontent{
+    display: inline-block;
+    background-color: #C8C8C8;
+    padding: 6px 5px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+#table tr.border1{
+    border-bottom: 1px dashed #2e6da4;
+}
+.proList{
+    width: 1190px;
+}
+.commentbtn1{
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #3e8f3e;
+    border: 0;
+    cursor: pointer;
+    color: #93D1FF;
+}
+ul.pagination{
+    margin-top: 20px;
+    height: 50px;
+}
+ul.pagination li{
+    float: left;
+    padding: 5px 10px;
+    margin-left: 5px;
+    background-color: #F5F5F5;
+}
+ul.pagination li.active{
+    color: #7abc2c;
+    background-color: #2e6da4;
+}
+.commentdiv{display: none;margin-top: 10px}
+.contenttext{width: 50%;height: 60px;padding: 10px}
+.commentdivbtn{
+    display: inline-block;
+    padding: 5px 20px;
+    background-color: #2e6da4;
+    color: #c7ddef;
+    margin-top: 10px;
+    cursor: pointer;
+}
+.err_msg{display: none}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+  <div class="width1190" style="width:1000px;">
+   <div class="proImg fl">
+    <div id="playBox">
+        <div class="pre">&lt;</div>
+        <div class="next">&gt;</div>
+        <div class="smalltitle">
+        <ul>
+            <li class="thistitle"></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+    <ul class="oUlplay">
+        <li><img src="{{ zidinfo.img_address }}"></li>
+        <li><img src="/static/images/fang2.jpg"></li>
+        <li><img src="/static/images/fang3.jpg"></li>
+        <li><img src="/static/images/fang4.jpg"></li>
+        <li><img src="/static/images/fang5.jpg"></li>
+    </ul>
+ </div>
+   </div><!--proImg/-->
+   <div class="proText fr">
+       <h3 class="proTitle">{{ zidinfo.title }}{% if zidinfo.isFabu %}{% else %}<span class="fabushenhe">(审核中)</span>{% endif %}</h3>
+    <div class="proText1">
+     编号：<span class="zidinfoid">{{ zidinfo.id }}</span><br />
+     位置：{{ zidinfo.village }}-{{ zidinfo.location }}<br />
+     租金：{{ zidinfo.unit_price }} 元/月<br />
+     户型：{{ zidinfo.bedroom }}<br />
+     面积：{{ zidinfo.area }}<br />
+     朝向：{{ zidinfo.direction }}<br />
+     楼层：{{ zidinfo.floor }}<br />
+     发布时间：{{ zidinfo.release_time }}
+
+    </div>
+    <div class="xun-car">
+     <a href="javascript:;" class="xwjg">¥<strong>{{ zidinfo.unit_price }}</strong>元</a>
+        <input type="hidden" value="{{ zidinfo.id }}" class="hiddenhouseid">
+        <button class="guanzhuBtn" id="guanzhuBtn"{% if guanzhu %} disabled style="background-color: #ccc">已关注{% else %}>关注房源{% endif %}</button>
+        {% csrf_token %}
+    </div><!--xun-car/-->
+   </div><!--proText/-->
+   <div class="clears"></div>
+  </div><!--width1190/-->
+  <div class="proBox" style="width:1000px;margin:10px auto;">
+  <div class="proEq">
+   <ul class="fl">
+    <li class="proEqCur">评论({% if commentcount > 0 %}{{ commentcount }}{% else %}0{% endif %})</li>
+    <li>经纪人</li>
+    <li>房源详情</li>
+    <li>房源图片</li>
+    <li>小区介绍</li>
+   </ul>
+   <div class="lxkf fr"><a href="http://wpa.qq.com/msgrd?v=3&uin=1072631488&site=qq&menu=yes" target="_blank"></a></div>
+   <div class="clears"></div>
+  </div><!--proEq/-->
+  <div class="proList">
+      <div class="comment_list">
+      {% if page_obj %}
+          <h3 style="margin-bottom: 10px">最新评论</h3>
+          <table id="table" cellpadding="0" cellspacing="0" width="500" border="1">
+          {% for item in page_obj %}
+              <tr>
+                  <td width="30"><img src="{{ item.user.headPortrait }}" class="headImg" alt=""></td>
+                  <td>{{ item.user.username }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      满意度: {{ item.get_satisfied_display }}&nbsp;&nbsp;&nbsp;&nbsp;<input type="hidden" class="delhiddenid" value="{{ item.id }}">
+                      {% if user_id and item.user.id == user_id %}<a class="delcomment1" style="cursor: pointer">删除</a>{% else %}{% endif %}
+                  </td>
+              </tr>
+              <tr>
+                  <td></td>
+                  <td><span class="commentcontent">{{ item.content }}</span></td>
+              </tr>
+              <tr class="border1">
+                  <td></td>
+                  <td>{{ item.create_time | date:'Y-m-d H:i:s'}}</td>
+              </tr>
+          {% endfor %}
+          </table>
+           {% if page_obj.paginator.num_pages > 1 %}
+
+            <div class="paginator">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+                    {% endif %}
+                    {% for pg in page_obj.paginator.page_range %}
+                        {% circle_page page_obj.number pg %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li><a href="?
+
+                        page={{ page_obj.next_page_number }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+             {% else %}{% endif %}
+      {% else %}
+          暂无评论....
+      {% endif %}
+      <p><button class="commentbtn1">发表评论</button><span class="err_msg">请, <a href="/login/" style="color: red">登录</a></span></p>
+      <div class="commentdiv">
+          <input type="radio" name="satisfied" value="1" id="a" checked><label for="a">好评</label>
+          <input type="radio" name="satisfied" value="2" id="b"><label for="b">中评</label>
+          <input type="radio" name="satisfied" value="3" id="c"><label for="c">差评</label><br>
+          <textarea type="text" class="contenttext"></textarea><br>
+          <span class="commentdivbtn">发表评论</span>
+      </div>
+    </div>
+  </div>
+  <div class="proList">
+          {% for agent in agent_list %}
+              <div class="zhongjie">
+                    <div class="zhongjie_img">
+                        <img src="{{ agent.img }}" alt="">
+                    </div>
+                    <div class="zhongjie_info">
+                        <p>姓名: {{ agent.relname }}</p>
+                        <p>联系方式: {% if agent.isTelephone == 1 %}{{ agent.userAgent.telephone }}{% else %}400-0000-0000{% endif %}</p>
+                    </div>
+              </div>
+          {% endfor %}
+  </div>
+  <div class="proList">
+
+   枝江，是王松华仕途的重要一站。担任枝江市委书记期间，王松华起早贪黑，展现出过人的能力。调查人员告诉记者，枝江市能位居湖北省“十强县”之列，王松华立下汗马功劳。以江汉大道的修建为例，当年修建的时候，规划比较保守，唯有王松华力排众议，决定拓宽车道，引来非议一片。然而，几年过去，枝江经济社会快速发展，再回看这条路，人们都认为王松华有眼光，更有甚者，认为该路应该再修宽一些。<br />
+枝江成就了王松华，正是凭着在枝江任职时期的政绩，王松华被提拔为副厅级干部。但某种程度上说，又是枝江“毁了”王松华，也正是在枝江时期，王松华性格中的负面因素被不断放大，长时间的唯我独尊，让他养成了独断专行、骄傲跋扈、自以为是的作风，这为他日后的严重违纪埋下了伏笔。<br />
+2006年，王松华迎来了人生中的十字路口。当时，正值市县换届，踌躇满志的他满心以为能“更进一步”，不料却与宜昌市委常委的职务失之交臂。<br />
+这样的挫折，本是一个契机。如果泰然处之，反躬自省，人生未尝不能有所精进。然而，王松华无法接受这样的结果，他认为组织不公，怨天尤人。即便是2007年初，组织提拔其为宜昌市经济技术开发区管委会主任（副厅级），他依然精神萎靡，公开宣称“不想来这里”。<br />
+而在这之后，尽管王松华多方“运作”，但又与两次“进步”机会擦肩而过。连续三次受挫，对他打击严重，让他心理彻底失衡，从此一蹶不振。<br />
+“我当时像疯了一样。”王松华这样形容自己当时的状态。有一次，宜昌市某市领导到开发区视察工作，本应出面接待的他坚决不去，并愤愤不平地说：“我去陪他干嘛？！他的位子本来应该是我的！！”<br />
+<br />
+
+  </div><!--proList/-->
+  <div class="proList">
+      <img src="{{ zidinfo.img_address }}" width="286"  height="188" />
+      <img src="/static/images/fang2.jpg" />
+      <img src="/static/images/fang3.jpg" />
+      <img src="/static/images/fang4.jpg" />
+      <img src="/static/images/fang5.jpg" />
+      <img src="/static/images/fang6.jpg" />
+      <img src="/static/images/fang7.jpg" />
+  </div><!--proList/-->
+  <div class="proList">
+   暂无信息...
+  </div><!--proList/-->
+ </div><!--proBox/-->
+ </div><!--content/-->
+<script>
+function aa() {
+    var oDiv = document.getElementById('playBox');
+    var oPre = getByClass(oDiv, 'pre')[0];
+    var oNext = getByClass(oDiv, 'next')[0];
+    var oUlBig = getByClass(oDiv, 'oUlplay')[0];
+    var aBigLi = oUlBig.getElementsByTagName('li');
+    var oDivSmall = getByClass(oDiv, 'smalltitle')[0];
+    var aLiSmall = oDivSmall.getElementsByTagName('li');
+    var now = 0;
+
+    function tab() {
+        for (var i = 0; i < aLiSmall.length; i++) {
+            aLiSmall[i].className = '';
+        }
+        aLiSmall[now].className = 'thistitle';
+        startMove(oUlBig, 'left', -(now * aBigLi[0].offsetWidth))
+    }
+
+
+    for (var i = 0; i < aLiSmall.length; i++) {
+        aLiSmall[i].index = i;
+        aLiSmall[i].onclick = function() {
+            now = this.index;
+            tab();
+        }
+    }
+
+    oPre.onclick = function() {
+        now--;
+        if (now == -1) {
+            now = aBigLi.length - 1;
+        }
+        tab();
+    };
+    oNext.onclick = function() {
+        now++;
+        if (now == aBigLi.length) {
+            now = 0;
+        }
+        tab();
+    };
+    var timer = setInterval(oNext.onclick, 3000) //滚动间隔时间设置
+    oDiv.onmouseover = function() {
+        clearInterval(timer)
+    };
+    oDiv.onmouseout = function() {
+        timer = setInterval(oNext.onclick, 3000) //滚动间隔时间设置
+    }
+}
+function getStyle(obj, name) {
+    if (obj.currentStyle) {
+        return obj.currentStyle[name]
+    } else {
+        return getComputedStyle(obj, false)[name]
+    }
+}
+function getByClass(oParent, nClass) {
+    var eLe = oParent.getElementsByTagName('*');
+    var aRrent = [];
+    for (var i = 0; i < eLe.length; i++) {
+        if (eLe[i].className == nClass) {
+            aRrent.push(eLe[i]);
+        }
+    }
+    return aRrent;
+}
+function startMove(obj, att, add) {
+    clearInterval(obj.timer)
+    obj.timer = setInterval(function() {
+        var cutt = 0;
+        cutt = Math.round(parseFloat(getStyle(obj, att)));
+
+        var speed = (add - cutt) / 8;
+        speed = speed > 0 ? Math.ceil(speed) : Math.floor(speed);
+        if (cutt == add) {
+            clearInterval(obj.timer)
+        } else {
+            obj.style[att] = cutt + speed + 'px';
+        }
+    }, 30)
+}
+aa();
+$(function () {
+    $('.guanzhuBtn').click(function () {
+            csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            houseid = $('.hiddenhouseid').val();
+            $.ajax({
+                url: '/guanzhu/',
+                type: 'POST',
+                data: {
+                   houseid: houseid
+                },
+                headers :{'X-CSRFToken':csrf},
+                async : false,
+                dataType: 'json',
+                success: function (data) {
+                    if(data.result == 0){
+                        layer.msg(data.msg, {icon: 1});  // 未登录则 跳转至登录界面,  登录成功后跳回当前页面
+                        setTimeout(function () {
+                             location.href = '/login/'
+                        }, 2000);
+                    }else if(data.result == 1){
+                        layer.msg(data.msg, {icon: 1});
+                        setTimeout(function () {
+                            location.reload();
+                        }, 2000);
+
+                    }else{
+                        layer.msg('操作失败', {'icon': 2});
+                    }
+                }
+            });
+        });
+    $('.commentbtn1').click(function () {
+        var user = $('.userid').val();
+        if(user == 'abc'){
+            $('.err_msg').css('display', 'block');
+        }else{
+            $(this).css('display', 'none');
+            $('.commentdiv').css('display', 'block');
+        }
+    });
+    $('.commentdivbtn').click(function () {
+        var satisfied = $('input[name="satisfied"]:checked').val();
+        var content = $.trim($('.contenttext').val());
+        if(content == ''){
+            layer.msg('请输入评论内容', {'icon': 2});
+            return false
+        }
+        data = {
+            'id': $('.zidinfoid').text(),
+            'satisfied': satisfied,
+            'content': content
+        };
+        $.ajax({
+            type: 'post',
+            url: '/comment/',
+            data: data,
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if(data.result == 1){
+                    layer.msg(data.msg, {'icon': 1});
+                    setTimeout(function () {
+                        location.reload()
+                    }, 2000)
+                }else{
+                    layer.msg(data.msg, {'icon': 2});
+                }
+            },
+            error: function () {
+                layer.msg('异常错误!', {'icon': 2})
+            }
+        });
+    });
+    $('.delcomment1').click(function () {
+        layer.confirm('确定要删除这条评论吗?',{
+            btn: ['删除', '关闭'],
+        }, function (index) {
+            var id = $('.delhiddenid').val();
+            $.ajax({
+                url: '/deletecomment/',
+                data: {id: id, csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()},
+                async: false,
+                dataType: 'json',
+                type: 'post',
+                success: function (data) {
+                    if(data.result == 1){
+                        layer.msg(data.msg, {'icon': 1});
+                        setTimeout(function () {
+                            location.reload();
+                        }, 2000);
+                    }else{
+                        layer.msg(data.msg, {'icon': 2});
+                    }
+                },
+                error: function () {
+                    layer.msg('异常错误', {'icon': 2})
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

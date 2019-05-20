@@ -1,0 +1,99 @@
+
+{% extends "homelink/base.html" %}
+
+{% block content %}
+
+<h3>爬取北京链家租房信息</h3>
+<form method="POST" class="form-horizontal" role='form' action="{% url 'homelink:house_spider' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+   <div class="form-group">
+       <div class="col-md-12">
+            <button type="submit" class="btn btn-primary form-control">开始爬取</button>
+       </div>
+   </div>
+</form>
+
+{% if page_obj %}
+<h3>爬取租房结果</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>标题</th>
+            <th>区域</th>
+            <th>位置</th>
+            <th>房厅</th>
+            <th>面积</th>
+            <th>朝向</th>
+            <th>上架时间</th>
+            <th>租金(元/月)</th>
+        </tr>
+    </thead>
+    <tbody>
+     {% for house in page_obj.object_list %}
+        <tr>
+            <td>
+            {{ house.title }}
+            </td>
+            <td>
+            {{ house.village }}
+            </td>
+            <td>
+            {{ house.location }}
+            </td>
+             <td>
+             {{ house.bedroom }}
+            </td>
+             <td>
+             {{ house.area }}
+            </td>
+            <td>
+             {{ house.direction }}
+            </td>
+            <td>
+             {{ house.release_time }}
+            </td>
+             <td>
+            {{ house.unit_price }}
+            </td>
+     {% endfor %}
+        </tr>
+    </tbody>
+</table>
+
+{% else %}
+    <p>尚无租房信息。</p>
+{% endif %}
+
+{% load i18n %}
+{# 注释: 下面代码实现分页 #}
+
+<ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?{{ page_obj.previous_page_number.querystring }}">{% trans "previous" %}</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">{% trans "previous" %}</span></li>
+    {% endif %}
+
+    {% for page in page_obj.pages %}
+        {% if page %}
+            {% ifequal page page_obj.number %}
+                <li class="page-item active"><span class="page-link"> {{ page }} <span class="sr-only">(current)</span></span></li>
+            {% else %}
+                <li class="page-item"><a class="page-link" href="?{{ page.querystring }}">{{ page }}</a></li>
+            {% endifequal %}
+        {% else %}
+{#             ...#}
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?{{ page_obj.next_page_number.querystring }}">{% trans "next" %}</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">{% trans "next" %}</span></li>
+    {% endif %}
+</ul>
+
+
+
+{% endblock %}

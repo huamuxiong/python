@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+	<script src="/static/js/jquery-3.2.1.js"></script>
+	<script type="text/javascript" src="/static/layui/layui.js"></script>
+    <link rel="stylesheet" href="/static/css/zhiding.css">
+    <script type="text/javascript" src="/static/js/zhiding.js"></script>
+    <style>
+        .layui-input-block{
+            width: 70%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="zhidinggoufang" style="margin-top: 10px">
+    <form action="" class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">家具编号</label>
+            <div class="layui-input-block">
+                <input type="text" name="jiajuid" placeholder="请输入" value="{{ redwood.id }}" readonly autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">满意度</label>
+            <div class="layui-input-block">
+                <input type="radio" name="satisfied" value="1" title="好评" checked>
+                <input type="radio" name="satisfied" value="2" title="中评">
+                <input type="radio" name="satisfied" value="3" title="差评">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">评价内容</label>
+            <div class="layui-input-block">
+                <textarea placeholder="请输入评价内容(限制50字以内)" name="comment" required class="layui-textarea" maxlength="50"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+        {% csrf_token %}
+    </form>
+ </div><!--zhidinggoufang/-->
+</body>
+</html>
+<script>
+    layui.use(['layer', 'jquery', 'form'], function() {
+        var layer = layui.layer,
+            $ = layui.jquery,
+            form = layui.form;
+
+        //监听提交
+        form.on('submit(formDemo)', function(data){
+            var formDate = data.field;
+            jiaju_id = formDate.jiajuid;
+            satisfied_id = formDate.satisfied;
+            comment = formDate.comment;
+            ajax_submit(jiaju_id, satisfied_id, comment);
+            return false
+        });
+        function ajax_submit(jiaju_id, satisfied_id, comment) {
+            data = {
+                    'jiaju_id': jiaju_id,
+                    'satisfied_id': satisfied_id,
+                    'comment': comment
+                };
+            $.ajax({
+                type: 'post',
+                url: '/comment/',
+                data: data,
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    if(data.flag == 1){
+                        layer.msg(data.msg, {'icon': 1});
+                        setTimeout(function () {
+                            location.reload()
+                        }, 2000000)
+                    }else{
+                        layer.msg(data.msg, {'icon': 2});
+                    }
+                },
+                error: function () {
+                    layer.msg('异常错误!', {'icon': 2})
+                }
+            });
+        }
+    });
+</script>

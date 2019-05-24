@@ -1,0 +1,101 @@
+{% extends 'userinfo.html' %}
+{% load page_simple_tag %}
+
+{% block navclass %}
+    <script type="text/javascript">
+        $(function(){
+	        //导航定位
+	        $(".nav li:eq(5)").addClass("navCur");
+	        $(".vipNav dd a:eq(2)").addClass("vipNavCur");
+	    });
+    </script>
+{% endblock %}
+
+{% block link-js %}
+    <link rel="stylesheet" href="/static/css/fenye.css">
+{% endblock %}
+
+{% block style %}
+    <style>
+        .qxgzBtn{
+            background-color: #2b669a;
+            border: 1px solid #ccc;
+            color: #fff;
+            cursor: pointer;
+        }
+        .styletype{
+            display: inline-block;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+    </style>
+{% endblock %}
+
+{% block vip-right %}
+    <div class="vip-right">
+     <h3 class="vipright-title">收藏的家具</h3>
+     <div class="guanzhulist">
+     {% csrf_token %}
+     {% if page_obj %}
+      {% for jiaju in page_obj %}
+         <dl>
+             <dt><a href="/jiaju_info/{{ jiaju.redwood.id }}"><img src="{{ jiaju.redwood.img.url }}" width="190" height="128" title="{{ jiaju.redwood.title }}"/></a></dt>
+             <dd style=" width: 370px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                 <input type="hidden" class="hiddenqxgz" value="{{ jiaju.redwood.id }}">
+                 <h3 style="font-size: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis"><a href="/jiaju_info/{{ jiaju.redwood.id }}" title="{{ jiaju.redwood.title }}">{{ jiaju.redwood.title }}</a></h3>
+                 <span class="styletype">所属风格：{{ jiaju.redwood.get_type_display }}</span>
+                 <div class="guantext2">关注时间：{{ jiaju.redwood.create_time | date:'Y-m-d H:i' }}    <button class="qxgzBtn" onclick="deleteGz({{ jiaju.id }})"> 取消关注</button></div>
+             </dd>
+             <div class="price">¥ <strong>{{ jiaju.redwood.price }}</strong><span class="font12">元</span></div>
+             <div class="clearfix"></div>
+          </dl>
+      {% endfor %}
+         {% if page_obj.paginator.num_pages > 1 %}
+
+            <div class="paginator">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+                    {% endif %}
+                    {% for pg in page_obj.paginator.page_range %}
+                        {% circle_page page_obj.number pg %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+             {% else %}{% endif %}
+         {% else %}暂无关注信息........
+     {% endif %}
+     </div><!--guanzhulist/-->
+    </div>
+    <script>
+        function deleteGz(collectid) {
+            layer.confirm('确定要取消关注吗?', {
+                btn: ['确定', '取消'], //按钮
+            }, function (index) {
+                $.ajax({
+                    type: 'post',
+                    url: '/userinfo/usercollect/',
+                    data: {collectid: collectid},
+                    async: false,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.flag == 1){
+                            layer.msg(data.msg, {icon: 1});
+                            setTimeout(function () {
+                                location.reload()
+                            }, 2000);
+                        }else{
+                            layer.msg(data.msg, {icon: 2});
+                        }
+                    },
+                    error: function () {
+                        layer.msg('异常错误', {'icon': 2})
+                    }
+                });
+            });
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,143 @@
+
+{% extends 'index.html' %}
+{% load search_simple_tag %}
+{% load page_simple_tag %}
+
+{% block navclass %}
+<script type="text/javascript">
+    $(function(){
+        //导航定位
+        $(".nav li:eq(1)").addClass("navCur");
+    });
+</script>
+{% endblock %}
+
+{% block link-js %}
+    <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+{% endblock %}
+
+{% block style %}
+    <style>
+        dt{
+            overflow: hidden;
+        }
+        dt img{
+            border-radius: 5px;
+        }
+        ul.pagination{
+            margin-top: 20px;
+            margin-left: 557px;
+            height: 50px;
+        }
+        ul.pagination li{
+            float: left;
+            padding: 5px 10px;
+            margin-right: 5px;
+            background-color: #F5F5F5;
+        }
+        ul.pagination li.active{
+            color: #7abc2c;
+            background-color: #2e6da4;
+        }
+        .xuanze{
+            margin-bottom: 5px;
+        }
+        .xuanze a{
+            display: inline-block;
+            padding: 8px;
+        }
+        .on{
+            background-color: coral;
+            color: white;
+        }
+        .item{
+            display: inline-block;
+            width: 300px;
+            height: 400px;
+        }
+        .item img{
+            border: 0;
+            width: 300px;
+            height: 280px;
+            overflow: hidden;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="content">
+  <div class="width1190">
+   <div id = "computed_props">
+
+       <form action="" method="get" id="form">
+           <b>自定义搜索: </b>
+           <input type="text" placeholder="模糊查询标题" value="{{ searchTitle }}" name="searchTitle" onkeyup="this.value=this.value.replace(/\s+/g,'')">
+{#           <input type="text" placeholder="模糊查询位置" value="{{ searchLocation }}" name="searchLocation" onkeyup="this.value=this.value.replace(/\s+/g,'')">#}
+           <input type="submit" value="搜索">
+       </form>
+   </div>
+   <form action="/jiaju/" method="get" class="pro-search">
+       <hr>
+       <h3>按条件筛选：</h3>
+       <div class="xuanze"><b>风格:</b>
+           {% action_all current_url 1 %}
+           {% for item in style_list %}
+               {% action current_url item 1 %}
+           {% endfor %}
+       </div>
+       <div class="xuanze"><b>价格:</b>
+           {% action_all current_url 2 %}
+           {% for item in price_list %}
+               {% action current_url item 2 %}
+           {% endfor %}
+       </div>
+   </form><!--pro-search/-->
+  </div><!--width1190/-->
+  <div class="width1190"><hr>
+  {% if page_obj %}
+   <div class="pro-left">
+   {% for item in page_obj %}
+        <dl>
+            <dt><a href="/jiaju_info/{{ item.id }}"><img src="{{ item.img.url }}" width="286" height="188" /></a></dt>
+            <dd>
+            <h3><a href="/jiaju_info/{{ item.id }}">{{ item.title }}</a></h3>
+            <div class="pro-wei">
+                <img src="/static/images/weizhi.png" width="12" height="16" />
+{#                <strong class="red">{{ item.village }} - {{ item.location }}</strong>#}
+            </div>
+{#            <div class="pro-fang">{{ item.bedroom }} | {{ item.area }}m² | {{ item.direction }} | {{ item.floor }}</div>#}
+            <div class="pra-fa">发布时间: {{ item.create_time | date:'Y-m-d' }}</div>
+            </dd>
+            <div class="price">¥ <strong>{{ item.price }}</strong><span class="font12">元</span></div>
+            <div class="clears"></div>
+        </dl>
+   {% endfor %}
+
+   </div><!--pro-left/-->
+    {% if page_obj.paginator.num_pages > 1 %}
+   <div class="clears"></div>
+   <div class="paginator">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li><a href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+            {% endif %}
+            {% for pg in page_obj.paginator.page_range %}
+                {% circle_page page_obj.number pg %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li><a href="?page={{ page_obj.next_page_number }}">下一页</a></li>
+            {% endif %}
+        </ul>
+  </div>
+    {% else %}
+    {% endif %}
+  {% else %}
+      <img src="/static/error/no-data.jpg" alt="">
+  {% endif %}
+  </div><!--width1190/-->
+ </div><!--content/-->
+ <script>
+
+ </script>
+{% endblock %}

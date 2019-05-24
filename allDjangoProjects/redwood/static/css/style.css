@@ -1,0 +1,26 @@
+body{
+    background: url("../img/1.jpg");
+    background-size: 100% 120%;
+    background-repeat: no-repeat;
+    animation-name:myfirst;
+    /*变换时间*/
+    animation-duration:12s;
+    /*动画开始时间*/
+    animation-delay:2s;
+    /*下一周期循环播放*/
+    animation-iteration-count:infinite;
+    /*动画开始运行*/
+    animation-play-state:running;
+}
+@keyframes myfirst
+{
+    0%   {background-image:url("../img/1.jpg");}
+    34%  {background-image:url("../img/2.jpg");}
+    67%  {background-image:url("../img/3.jpg");}
+    100% {background-image:url("../img/1.jpg");}
+}
+/*阴影*/
+.form{background: rgba(255,255,255,0.2);width:400px;margin:120px auto;}
+/*.fa{display: inline-block;top: 27px;left: 6px;position: relative;color: #ccc;}*/
+input[type="text"],input[type="password"]{padding-left:26px;}
+.checkbox{padding-left:21px; color: aliceblue;}

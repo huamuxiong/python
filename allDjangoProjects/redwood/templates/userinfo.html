@@ -1,0 +1,242 @@
+{% extends 'index.html' %}
+{% block style %}
+    <style>
+        input:focus, textarea:focus{outline:none;}
+        .grinfo th{width: 83px;}
+    </style>
+{% endblock %}
+
+{% block navclass %}
+    <script type="text/javascript">
+        $(function(){
+	        //导航定位
+	        $(".nav li:eq(5)").addClass("navCur");
+	        $(".vipNav dd a:eq(0)").addClass("vipNavCur");
+	    });
+    </script>
+{% endblock %}
+
+{% block content %}
+{% load  staticfiles %}
+ <div class="content">
+  <div class="width1190">
+   <div class="vip-left">
+       <div class="vipNav">
+        <h3 class="vipTitle">会员中心</h3>
+        <dl>
+         <dt class="vipIcon3">账户设置</dt>
+          <dd class="vipIcon333">
+           <a href="/userinfo/">我的资料</a>
+           <a href="/userinfo/resetpassword/">修改密码</a>
+           <a href="/userinfo/usercollect/">我的关注</a>
+           <a href="/userinfo/userhistory/">我的足迹</a>
+           <a href="/userinfo/usercomment/">我的评论</a>
+           <a href="/userinfo/useradvice/">投诉建议</a>
+          </dd>
+        </dl>
+       </div><!--vipNav/-->
+    </div><!--vip-left/-->
+  {% block vip-right %}
+
+    <div class="vip-right">
+     <h3 class="vipright-title">修改头像</h3>
+        <form action="">
+            {% csrf_token %}
+            <input id="avatar" type="hidden" value="{{ user.headimg }}" name="avatar" style="width: 400px">
+        </form>
+
+     <dl class="vip-touxiang">
+
+         <input id="avatarSlect" type="file" style="position: absolute;float: left; z-index: 10; opacity: 0;width: 100px; height: 100px;">
+      <dt><img id="avatarPreview" src="{{ user.headimg.url }}" title="点击更换图片" style="position: absolute; z-index: 9; float: left; width: 100px; height: 100px"></dt>
+      <dd>
+       <h3><strong>点击图片上传头像</strong></h3><br/><br>
+       <p>图片格式：JPG、JPEG、PNG ，最适合尺寸100*100像素</p>
+      </dd>
+     <div class="clearfix"></div>
+     </dl><!--vip-touxiang/-->
+     <h3 class="vipright-title">修改资料</h3>
+     {% csrf_token %}
+        <table class="grinfo">
+        <tbody>
+        <tr>
+            <th>用户名：</th>
+            <td><input class="inp inw username" type="text" value="{{ user.username }}" readonly></td>
+        </tr>
+        <tr>
+            <th>邮 &nbsp;&nbsp;&nbsp;箱：</th>
+            <td><input class="inp inw email" type="email" maxlength="30" value="
+{% if user.email %}{{ user.email }}{% else %}{% endif %}" id="email"></td>
+        </tr>
+        <tr>
+        <tr>
+            <th>性 &nbsp;&nbsp;&nbsp;别：</th>
+            <td>
+                <label><input type="radio" name="gender" checked value="1">男</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                <label><input type="radio" name="gender" value="2" {% if user.gender == 2 %}checked{% else %}{% endif %}>女</label>
+            </td>
+        </tr>
+        <tr>
+            <th>手 &nbsp;&nbsp;&nbsp;机：</th>
+            <td><input type="text" class="inp inw phone" name="phone" value="{% if user.phone %}{{ user.phone }}{% else %}{% endif %}"></td>
+        </tr>
+        <tr>
+            <th>出生年月：</th>
+            <td><input type="text" class="inp inw birthday" name="birthday" value="{% if user.birthday %}{{ user.birthday | date:'Y-m-d' }}{% else %}{% endif %}"></td>
+        </tr>
+            <th></th><td><input type="submit" class="member_mod_buttom userinfobtn" value="保存" /></td>
+        </tr>
+        </tbody>
+      </table>
+    </div><!--vip-right/-->
+    {% endblock %}
+    <div class="clearfix"></div>
+  </div><!--width1190/-->
+ </div><!--content/-->
+    <script>
+  $(function () {
+      bindAvatar1();
+      updateUserinfo();
+ });
+  // 修改资料
+  function updateUserinfo() {
+      $('.userinfobtn').click(function () {
+          csrf = $('input[name="csrfmiddlewaretoken"]').val();
+          var email = $('.email').val();
+          var ereg = /^([a-zA-Z0-9]+[_|\-|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\-|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/gi;
+          if(email == '' || email == null){
+              layer.msg('邮箱不可以为空!', {'icon': 2});
+              return false
+          }else if (!ereg.test(email)){
+              layer.msg('请输入正确的邮箱格式!', {'icon': 2});
+              return false
+          }
+          var gender = $('input[name="gender"]:checked').val();
+          var phone = $('.phone').val();
+          var myreg = /^(((13[0-9]{1})|(14[0-9]{1})|(17[0]{1})|(15[0-3]{1})|(15[5-9]{1})|(18[0-9]{1}))+\d{8})$/;
+          if(phone == '' || phone == null){
+              layer.msg('手机不可以为空!', {'icon': 2});
+              return false
+          }else if(!myreg.test(phone)){
+              layer.msg('不是有效的手机号!', {'icon': 2})
+              return false
+          }
+          var birthday = $('.birthday').val();
+          if(birthday == '' || birthday == null){
+              layer.msg('出生年月是必填项~', {'icon': 2});
+              return false
+          }else if(isNaN(birthday) && isNaN(Date.parse(birthday))){
+              layer.msg('请输入正确的日期格式，如：\n2018-12-25', {'icon': 2});
+              return false
+          }
+
+          $.ajax({
+              url: '/userinfo/',
+              type: 'POST',
+              data: {
+                  email: email,
+                  gender: gender,
+                  phone: phone,
+                  birthday: birthday,
+                  {#signtrue: signtrue,#}
+              },
+              headers :{'X-CSRFToken':csrf},
+              async : false,
+              dataType: 'json',
+              success: function (data) {
+                  if(data.status == 1){
+                      layer.msg(data.msg, {'icon': 1});
+                      setTimeout(function () {
+                          location.reload()
+                      }, 1000);
+
+                  }else{
+                      layer.msg(data.msg, {'icon': 2});
+                  }
+              },
+              error: function () {
+                  layer.msg('大概是你人缘不好吧，系统出问题了~', {'icon': 2})
+              }
+          });
+      });
+  }
+ {# function bindAvatar() {#}
+ {#     if(window.URL.createObjectURL){#}
+ {#       bindAvatar3();#}
+ {#     }else if(window.FileReader){#}
+ {#       bindAvatar2();#}
+ {#     }else {#}
+ {#       bindAvatar1();#}
+ {#     }#}
+ {# }#}
+  /*Ajax上传至后台并返回图片的url*/
+  function bindAvatar1() {
+    
+    $("#avatarSlect").change(function () {
+        var path = $(this).val();
+        extStart = path.lastIndexOf('.');
+        ext = path.substring(extStart, path.length).toUpperCase();
+        // 判断图片的格式
+        if (ext != '.JPG' && ext != '.JPEG' && ext != '.PNG'){
+            layer.msg('请上传正确格式的图片', {'icon': 2});
+            return false
+        }else {
+            var size = this.files[0].size / 1024;
+            if(size > 500){
+                layer.msg('哎呀，图片太大了，不要超过500KB哟~', {'icon': 2});
+                return false
+            }else {
+                var csrf = $("input[name='csrfmiddlewaretoken']").val();
+                var filename = $("#avatarSlect")[0].files[0];
+                var formData = new FormData();
+                formData.append("csrfmiddlewaretoken", csrf);
+                formData.append('avatar', $("#avatarSlect")[0].files[0]);
+                /*获取上传的图片对象*/
+                $.ajax({
+                    url: '/userinfo/upload_avatar/',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (args) {
+                        {#alert(args);  /*服务器端的图片地址*/#}
+                        layer.msg('头像上传成功', {'icon': 1});
+                        $("#avatarPreview").attr('src', '/media/' + args);  /*预览图片*/
+                        $("#avatar").val(args);  /*将服务端的图片url赋值给form表单的隐藏input标签*/
+                    }
+                });
+            }
+        }
+    });
+  }
+
+  /* 以下暂时未用 */
+  /*window.FileReader本地预览*/
+  function bindAvatar2() {
+    console.log(2);
+       $("#avatarSlect").change(function () {
+           var obj=$("#avatarSlect")[0].files[0];
+           var fr=new FileReader();
+           fr.onload=function () {
+               $("#avatarPreview").attr('src',this.result);
+               console.log(this.result);
+               $("#avatar").val(this.result);
+      };
+      fr.readAsDataURL(obj);
+    })
+ }
+ /*window.URL.createObjectURL本地预览*/
+ function bindAvatar3() {
+   console.log(3);
+      $("#avatarSlect").change(function () {
+          var obj=$("#avatarSlect")[0].files[0];
+          var wuc=window.URL.createObjectURL(obj);
+           $("#avatarPreview").attr('src',wuc);
+           $("#avatar").val(wuc);
+{#           $("#avatarPreview").load(function () {#}    /*当图片加载后释放内存空间，但在jQuery3.2.1中会报错。浏览器关闭后也会自动释放*/
+{#               window.URL.revokeObjectURL(wuc);#}
+{#      })#}
+   })
+ }
+</script>
+{% endblock %}

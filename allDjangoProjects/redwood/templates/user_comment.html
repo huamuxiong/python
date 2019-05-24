@@ -1,0 +1,132 @@
+{% extends 'userinfo.html' %}
+{% load page_simple_tag %}
+
+{% block navclass %}
+    <script type="text/javascript">
+        $(function(){
+	        //导航定位
+	        $(".nav li:eq(5)").addClass("navCur");
+	        $(".vipNav dd a:eq(4)").addClass("vipNavCur");
+	    });
+    </script>
+{% endblock %}
+
+{% block link-js %}
+    <script type="text/javascript" src="/static/js/checkCard.js"></script>
+    <link rel="stylesheet" href="/static/css/fenye.css">
+{% endblock %}
+
+{% block style %}
+<style>
+#table{
+    margin-top: 20px;
+    width: 948px;
+    font-size: 14px;
+}
+#table th{
+    text-align: left;
+}
+#table td, #table th{
+    padding: 6px 0 3px 0;
+    border-bottom: 1px solid #ccc;
+    margin-left: 10px;
+}
+td.acticed{
+    text-align: center;
+}
+.advicecontent{
+    cursor: pointer;
+}
+</style>
+{% endblock %}
+
+{% block vip-right %}
+    <div class="vip-right">
+     <h3 class="vipright-title">我的评论({% if comment_count > 0 %}{{ comment_count }}{% else %}0{% endif %})</h3>
+     {% if page_obj %}
+     <table id="table" cellpadding="0" cellspacing="0">
+         <tr>
+             <th>家具标题</th>
+             <th>满意度</th>
+             <th>评论内容</th>
+             <th>时间时间</th>
+             <th>操作</th>
+         </tr>
+        {% for item in page_obj %}
+         <tr>
+             <td><a href="/jiaju_info/{{ item.redwood.id }}"><span class="tdstr advicecontent" title="{{ item.redwood.title }}">{{ item.redwood.title }}</span></a></td>
+             <td>{{ item.get_satisfied_display }}</td>
+             <td><span class="tdstr advicereversion" title="{{ item.content }}">{{ item.content }}</span></td>
+             <td>{{ item.create_time | date:'Y-m-d H:i' }}</td>
+             <td><button onclick="advicecontentbtn({{ item.id }})" >删除</button></td>
+            </tr>
+        {% endfor %}
+     </table>
+         <script>
+            var obj = document.getElementById('table').getElementsByClassName('tdstr');
+            for(var i=0; i<obj.length; i++){
+                obj[i].innerHTML=obj[i].innerHTML.substring(0, 20)+'...';
+            }
+        </script>
+         {% if page_obj.paginator.num_pages > 1 %}
+
+            <div class="paginator">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+                    {% endif %}
+                    {% for pg in page_obj.paginator.page_range %}
+                        {% circle_page page_obj.number pg %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+             {% else %}{% endif %}
+    {% else %}
+     无。。。
+    {% endif %}
+    </div><!--vip-right/-->
+    <script>
+    $(function () {
+        $('.advicereversion').click(function () {
+            var reversion = $(this).attr('title');
+            var message = '<span style="color: yellow">评论内容: </span>' + reversion;
+            layer.msg(message, {
+                time: 2000000,
+                btn: ['知道了',]
+            });
+        });
+    });
+    function advicecontentbtn(id) {
+        layer.confirm('确定要删除这条评论吗?', {
+            btn: ['确定', '取消'],
+        }, function (index) {
+            $.ajax({
+                url: '/userinfo/usercomment/',
+                data: {
+                    'id': id,
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                },
+                type: 'post',
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.result == 1) {
+                        layer.msg(data.msg, {'icon': 1});
+                        setTimeout(function () {
+                            location.reload()
+                        }, 2000);
+                    } else {
+                        layer.msg(data.msg, {'icon': 2});
+                    }
+                },
+                error: function () {
+                    layer.msg('异常错误', {'icon': 2});
+                }
+            })
+        });
+    }
+    </script>
+{% endblock %}

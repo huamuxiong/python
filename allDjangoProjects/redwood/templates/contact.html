@@ -1,0 +1,96 @@
+{% extends 'userinfo.html' %}
+
+{% block navclass %}
+    <script type="text/javascript">
+        $(function(){
+	        //导航定位
+	        $(".nav li:eq(4)").addClass("navCur");
+	    });
+    </script>
+{% endblock %}
+
+{% block style %}
+    <style>
+    .email, .qita{
+        width: 369px;
+        height: 35px;
+    }
+    .email, .qita, #jianyi{
+        margin-top: 10px;
+        margin-left: 20px;
+        border-radius: 3px;
+        padding-left: 10px;
+    }
+    .jianyibtn{
+        margin-top: 10px;
+        margin-left: 50px;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+  <div class="width1190">
+   <div class="contleft">
+    <ul class="leftNav">
+     <li><a href="/aboutus/">关于我们</a></li>
+     <li class="leftNavCur"><a href="/contactus/">联系我们</a></li>
+    </ul><!--leftNav/-->
+   </div><!--contleft/-->
+   <div class="contright">
+    <h2 class="rightat">联系我们</h2>
+    <div class="about">
+     <table class="contactus" cellspacing="0" cellpadding="0">
+         <tr>
+             <td><input type="text" class="nickname" placeholder="请输入您的昵称"></td>
+         </tr>
+         <tr>
+             <td><textarea name="" id="jianyi" cols="50" rows="4" placeholder="请留下您宝贵的建议"></textarea></td>
+         </tr>
+         <tr>
+             <td><button class="jianyibtn" onclick="subjianyi()">提交</button></td>
+         </tr>
+         {% csrf_token %}
+     </table>
+    </div>
+   </div><!--contright/-->
+   <div class="clears"></div>
+  </div><!--width1190/-->
+ </div><!--content/-->
+    <script>
+    function subjianyi() {
+        var nickname = $.trim($('.nickname').val());
+        if(nickname == ''){
+            layer.alert('请输入您的称呼');
+            return false
+        }
+        var jianyi = $.trim($('#jianyi').val());
+        if(jianyi == ''){
+            layer.alert('请留下您的宝贵的建议或意见');
+            return
+        }
+        $.ajax({
+            url: '/contactus/',
+            type: 'post',
+            data: {
+                nickname: nickname,
+                jianyi: jianyi
+            },
+            async: false,
+            dataType: 'json',
+            success: function (data) {
+                if(data.flag == 1){
+                    layer.alert(data.msg)
+                }else if(data.flag == 0){
+                    layer.msg(data.msg);
+                    setTimeout(function () {
+                        location.href = '/login/'
+                    }, 2000)
+                }else{
+                    layer.alert(data.msg);
+                }
+            }
+        });
+    }
+    </script>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'userinfo.html' %}
+{% load page_simple_tag %}
+
+{% block navclass %}
+    <script type="text/javascript">
+        $(function(){
+	        //导航定位
+	        $(".nav li:eq(5)").addClass("navCur");
+	        $(".vipNav dd a:eq(3)").addClass("vipNavCur");
+	    });
+    </script>
+{% endblock %}
+
+{% block style %}
+    <style>
+        input:focus, textarea:focus{outline:none;}
+
+        #table{
+            margin-top: 20px;
+            width: 948px;
+            font-size: 14px;
+        }
+        #table th{
+            text-align: left;
+        }
+        #table td, #table th{
+            padding: 6px 0 3px 0;
+            border-bottom: 1px solid #ccc;
+            margin-left: 10px;
+        }
+        td.acticed{
+            text-align: center;
+        }
+        .clearhistory{
+            margin: 10px 0 0 882px;
+            background-color: #2e6da4;
+            border: 1px solid #ccc;
+            color: #afd9ee;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all .3s;
+        }
+        .clearhistory:hover{
+            background-color: #ccc;
+            color: #2E2D3C;
+        }
+    </style>
+{% endblock %}
+{% block link-js %}
+    <link rel="stylesheet" href="/static/css/fenye.css">
+{% endblock %}
+{% block vip-right %}
+    <div class="vip-right">
+    <h3 class="vipright-title">我的足迹</h3>
+        {% if page_obj %}
+
+            <button class="clearhistory" onclick="clearhistory()">清空足迹</button>
+            <table id="table" cellpadding="0" cellspacing="0">
+                <tr>
+                    <th align="left">家具标题</th>
+                    <th>所属风格</th>
+                    <th>上架时间</th>
+                    <th>当前状态</th>
+                    <th>浏览时间</th>
+                    <th>价格</th>
+                </tr>
+            {% for history in page_obj %}
+                    {% csrf_token %}
+                <input type="hidden" class="zdhiddenid" value="{{ history.id }}">
+                <tr>
+                    <td width="300px"><a class="tdstr" title="{{ history.redwood.title }}"
+                                         href="/jiaju_info/{{ history.redwood.id }}">{{ history.redwood.title }}</a></td>
+                    <td>{{ history.redwood.get_type_display }}</td>
+                    <td>{{ history.redwood.create_time | date:'Y-m-d H:i' }}</td>
+                    <td>{{ history.redwood.get_state_display }}</td>
+                    <td>{{ history.create_time | date:'Y-m-d H:i'}}</td>
+                    <td>{{ history.redwood.price }}</td>
+                </tr>
+            {% endfor %}
+{#                下边的js部分是设置td显示的字数#}
+                <script>
+                    var obj = document.getElementById('table').getElementsByClassName('tdstr');
+                    for(var i=0; i<obj.length; i++){
+                        obj[i].innerHTML=obj[i].innerHTML.substring(0, 20)+'...';
+                    }
+                </script>
+            </table>
+             {% if page_obj.paginator.num_pages > 1 %}
+
+            <div class="paginator">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+                    {% endif %}
+                    {% for pg in page_obj.paginator.page_range %}
+                        {% circle_page page_obj.number pg %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+             {% else %}{% endif %}
+        {% else %}
+            足迹为空....
+        {% endif %}
+    </div><!--vip-right/-->
+    <script>
+            function clearhistory() {
+                layer.confirm('确定要清空我的足迹吗?', {
+                    btn: ['确定', '取消'],
+                }, function (index) {
+                    $.ajax({
+                        type: 'post',
+                        url: '/userinfo/userhistory/',
+                        data: {csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()},
+                        async: false,
+                        dataType: 'json',
+                        success: function (data) {
+                            if(data.flag == 1){
+                                layer.msg(data.msg, {'icon': 1})
+                                setTimeout(function () {
+                                    location.reload()
+                                }, 2000)
+                            }else{
+                                layer.msg(data.msg, {'icon': 2})
+                            }
+                        },
+                        error: function () {
+                            layer.msg('异常错误', {'icon': 2})
+                        }
+                    });
+                });
+            }
+    </script>
+{% endblock %}

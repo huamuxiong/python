@@ -6,15 +6,3 @@ nihoaa
 ddddddddddd
 cccccccccccccc
 
-我是老版本
-我是新版本
-
-我是新克隆的
-
-我是新克隆的2
-
-我不是新克隆的
-
-你好
-hah
-

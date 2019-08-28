@@ -33,3 +33,5 @@
 ### 安装说明
 在用pip安装一些工具时可能会出错,这里建议先安装conda,然后使用conda安装,博客地址（或自行百度）：https://www.jianshu.com/p/edaa744ea47d
 
+### 安装依赖包requirements.txt
+> pip install -r requirements.txt

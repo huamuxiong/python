@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 #django认证系统使用的模型类
 AUTH_USER_MODEL = 'user.User'
 
+APPEND_SLASH=False
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -139,3 +141,14 @@ TINYMCE_DEFAULT_CONFIG = {
     'width': 600,
     'height': 400,
 }
+
+# 发送邮件配置
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.163.com'
+EMAIL_PORT = 25
+#发送邮件的邮箱
+EMAIL_HOST_USER = 'huamuxiong_2018@163.com'
+#在邮箱中设置的客户端授权密码
+EMAIL_HOST_PASSWORD = 'huamuxiong2018'
+#收件人看到的发件人
+EMAIL_FROM = '天天生鲜<huamuxiong_2018@163.com>'

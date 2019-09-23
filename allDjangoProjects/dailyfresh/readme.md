@@ -101,6 +101,27 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+### 发送邮件激活账户
+
+参考链接CSDN：https://blog.csdn.net/linzi1994/article/details/83044109
+
+官网：https://pypi.org/project/itsdangerous/#description
+
+常用方法：
+
+```python
+>>> from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+>>> s = Serializer('aaabbbccc')
+>>> token = s.dumps({'id': 1}).decode()  # 加密
+>>> token
+'eyJhbGciOiJIUzUxMiIsImlhdCI6MTU2OTI0ODM1MCwiZXhwIjoxNTY5MjUxOTUwfQ.eyJpZCI6MX0.xY51KdfJaJ7jqeTULIe84arAT_VPI_8lYUAZvRMbCpQ47Gn
+xQoC_jvwf0KmSM4fmPIYZVLYoGmuXecX3ZqS-7w'
+>>> s.loads(token)  # 解密
+{'id': 1}
+```
+
+
+
 ## 常见问题
 
 1. #### mysqlclient版本问题
@@ -176,11 +197,26 @@ flush privileges;
 
 关掉并重新打开django shell，再次运行即可
 
+4. #### views.py中使用class类来处理业务逻辑时遇到的问题
 
+```
+RuntimeError at /user/register
+You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to 127.0.0.1:8000/user/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+```
 
+解决办法：其实上文中已经给出了答案，如下：
 
+```
+Change your form to point to 127.0.0.1:8000/user/register/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+```
 
+在’/user/register‘处出现’RuntimeError‘错误
 
+有两种解决办法：
+
+一、在/user/register后添加一个斜杠’/‘，
+
+二、在settings.py中添加一句话：APPEND_SLASH=False（这里使用的是第二种）
 
 
 

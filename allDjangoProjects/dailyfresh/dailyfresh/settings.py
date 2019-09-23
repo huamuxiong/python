@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 #django认证系统使用的模型类
 AUTH_USER_MODEL = 'user.User'
 
-APPEND_SLASH=False
+# APPEND_SLASH=False
 
 # Application definition
 

@@ -28,6 +28,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+#django认证系统使用的模型类
+AUTH_USER_MODEL = 'user.User'
 
 # Application definition
 
@@ -38,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'tinymce',  # 富文本编辑器
     'user',  # 用户模块
     'order',  # 订单模块
     'goods',  # 商品模块
@@ -128,3 +131,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIR = [os.path.join(BASE_DIR, 'static')]
+
+# 富文本编辑器配置
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': 'advanced',
+    'width': 600,
+    'height': 400,
+}

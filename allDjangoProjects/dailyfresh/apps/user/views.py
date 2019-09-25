@@ -107,11 +107,11 @@ class RegisterView(View):
         # 发送邮件
         subject = '天天生鲜注册'
         message = ''
-        sender = settings.SECRET_KEY
-        from_email = [email]
-        html_message = '<a href="127.0.0.1:8000/user/active/%s">127.0.0.1:8000/user/active/%s</a>'%(token, token)
+        sender = settings.EMAIL_FROM
+        receiver = [email]
+        html_message = '<a href="http://127.0.0.1:8000/user/active/%s">http://127.0.0.1:8000/user/active/%s</a>'%(token, token)
 
-        send_mail(subject, message, sender, from_email, html_message=html_message)
+        send_mail(subject, message, sender, receiver, html_message=html_message)
         # 返回应答, 跳转到首页
         return redirect(reverse('goods:index'))
 
@@ -120,11 +120,12 @@ class RegisterView(View):
 class ActiveView(View):
     """账号激活"""
     def get(self, request, token):
+        print('哈哈哈：', token)
         serializer = Serializer(settings.SECRET_KEY, 600)
         try:
             info = serializer.loads(token)
             user_id = info['confirm']
-
+            print(user_id)
             user = User.objects.get(id=user_id)
             user.is_active = 1
             user.save()

@@ -109,7 +109,7 @@ class RegisterView(View):
         message = ''
         sender = settings.EMAIL_FROM
         receiver = [email]
-        html_message = '<a href="http://127.0.0.1:8000/user/active/%s">http://127.0.0.1:8000/user/active/%s</a>'%(token, token)
+        html_message = '<a href="http://127.0.0.1:8000/user/active/%s">点击</a>'%(token)
 
         send_mail(subject, message, sender, receiver, html_message=html_message)
         # 返回应答, 跳转到首页
@@ -119,24 +119,26 @@ class RegisterView(View):
 # 127.0.0.1:8000/user/active/<id>
 class ActiveView(View):
     """账号激活"""
+    # def get(self, request, token):
+    #     print('哈哈哈：', token)
+    #     serializer = Serializer(settings.SECRET_KEY, 600)
+    #     try:
+    #         info = serializer.loads(token)
+    #         user_id = info['confirm']
+    #         print(user_id)
+    #         user = User.objects.get(id=user_id)
+    #         user.is_active = 1
+    #         user.save()
+    #
+    #         # 激活成功，跳转到登陆界面
+    #         return redirect(reverse('user:login'))
+    #
+    #     except SignatureExpired as e:
+    #
+    #         return HttpResponse("账户激活链接已过期")
+
     def get(self, request, token):
-        print('哈哈哈：', token)
-        serializer = Serializer(settings.SECRET_KEY, 600)
-        try:
-            info = serializer.loads(token)
-            user_id = info['confirm']
-            print(user_id)
-            user = User.objects.get(id=user_id)
-            user.is_active = 1
-            user.save()
-
-            # 激活成功，跳转到登陆界面
-            return redirect(reverse('user:login'))
-
-        except SignatureExpired as e:
-
-            return HttpResponse("账户激活链接已过期")
-
+        return render(request, 'test.html', {'token': token})
 
 # 127.0.0.1:8000/user/login
 class LoginView(View):

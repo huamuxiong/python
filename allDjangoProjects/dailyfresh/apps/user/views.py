@@ -166,30 +166,27 @@ class LoginView(View):
         # 验证数据库
         # user = User.objects.get(username=username, password=password)
         user = authenticate(username=username, password=password)
-
+        # authenticate 在django2.1版本之后加入了验证is_active，都为真时才返回True，否则返回None
         # 业务逻辑处理
         if user is not None:
-            # 判断账户是否激活
-            if user.is_active:
-                # 记录用户的登陆状态
-                login(request, user)
 
-                # 获取要跳转的页面，没有则跳转主页
-                next_url = request.GET.get('next', reverse('goods:index'))
-                response = redirect(next_url)
+            # 记录用户的登陆状态，session封装
+            login(request, user)
 
-                # 判断是否要记住密码
-                remember = request.POST.get('remember')
-                if remember == 'on':
-                    # 添加到cookie
-                    response.set_cookie('username', username, max_age=7*24*3600)
-                else:
-                    response.delete_cookie('username')
+            # 获取要跳转的页面，没有则跳转主页
+            next_url = request.GET.get('next', reverse('goods:index'))
+            response = redirect(next_url)
 
-                return response
-
+            # 判断是否要记住密码
+            remember = request.POST.get('remember')
+            if remember == 'on':
+                # 添加到cookie
+                response.set_cookie('username', username, max_age=7*24*3600)
             else:
-                return render(request, 'login.html', {'err_msg': '用户未激活'})
+                response.delete_cookie('username')
+
+            return response
+
         else:
-            return render(request, 'login.html', {'err_msg': '‘用户名或密码错误'})
+            return render(request, 'login.html', {'err_msg': '用户名或密码错误或账户未激活'})
 

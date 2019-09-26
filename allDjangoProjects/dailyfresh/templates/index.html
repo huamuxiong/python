@@ -1,14 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-{% load staticfiles %}
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<title>天天生鲜-首页</title>
-	<link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
-	<script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
-	<script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
-	<script type="text/javascript" src="{% static 'js/slide.js' %}"></script>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="js/slide.js"></script>
 </head>
 <body>
 	<div class="header_con">
@@ -19,9 +18,9 @@
 					欢迎您：<em>张 山</em>
 				</div>
 				<div class="login_btn fl">
-					<a href="/user/login/">登录</a>
+					<a href="login.html">登录</a>
 					<span>|</span>
-					<a href="/user/register/">注册</a>
+					<a href="register.html">注册</a>
 				</div>
 				<div class="user_link fl">
 					<span>|</span>
@@ -36,7 +35,7 @@
 	</div>
 
 	<div class="search_bar clearfix">
-		<a href="index.html" class="logo fl"><img src="{% static 'images/logo.png' %}"></a>
+		<a href="index.html" class="logo fl"><img src="images/logo.png"></a>
 		<div class="search_con fl">
 			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
 			<input type="button" class="input_btn fr" name="" value="搜索">
@@ -71,18 +70,18 @@
 		</ul>
 		<div class="slide fl">
 			<ul class="slide_pics">
-				<li><img src="{% static 'images/slide.jpg' %}" alt="幻灯片"></li>
-				<li><img src="{% static 'images/slide02.jpg' %}" alt="幻灯片"></li>
-				<li><img src="{% static 'images/slide03.jpg' %}" alt="幻灯片"></li>
-				<li><img src="{% static 'images/slide04.jpg' %}" alt="幻灯片"></li>
+				<li><img src="images/slide.jpg" alt="幻灯片"></li>
+				<li><img src="images/slide02.jpg" alt="幻灯片"></li>
+				<li><img src="images/slide03.jpg" alt="幻灯片"></li>
+				<li><img src="images/slide04.jpg" alt="幻灯片"></li>
 			</ul>
 			<div class="prev"></div>
 			<div class="next"></div>
 			<ul class="points"></ul>
 		</div>
 		<div class="adv fl">
-			<a href="#"><img src="{% static 'images/adv01.jpg' %}"></a>
-			<a href="#"><img src="{% static 'images/adv02.jpg' %}"></a>
+			<a href="#"><img src="images/adv01.jpg"></a>
+			<a href="#"><img src="images/adv02.jpg"></a>
 		</div>
 	</div>
 

@@ -296,3 +296,21 @@ celery -A <mymodule> worker -l info -P eventlet
 celery -A celery_tasks.tasks worker -l info -P eventlet
 ```
 
+8. #### 登陆装饰器跳转认证
+
+自定义的登陆页面链接为`/user/login/`
+
+但是使用`login_require`装饰器的话默认是`/accounts/login/`
+
+```
+http://127.0.0.1:8000/accounts/login/?next=/user/
+```
+
+解决办法：
+
+修改配置文件`settings.py`，改成自己的
+
+```
+LOGIN_URL = '/user/login'
+```
+

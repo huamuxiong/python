@@ -1,7 +1,8 @@
 
 import re
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.mail import send_mail
@@ -189,4 +190,36 @@ class LoginView(View):
 
         else:
             return render(request, 'login.html', {'err_msg': '用户名或密码错误或账户未激活'})
+
+
+# 127.0.0.1:8000/user/logout
+class LogoutView(View):
+    """退出登陆"""
+    def get(self, request):
+        # 使用django认证系统的logout清除session数据
+        logout(request)
+
+        # 跳转至首页
+        return redirect(reverse('goods:index'))
+
+
+# 127.0.0.1:8000/user/
+class UserInfoView(LoginRequiredMixin, View):
+    """用户中心---信息页"""
+    def get(self, request):
+        return render(request, 'user_center_info.html', {'page': 'user'})
+
+
+# 127.0.0.1:8000/user/order/
+class UserOrderInfoView(LoginRequiredMixin, View):
+    """用户中心---订单页"""
+    def get(self, request):
+        return render(request, 'user_center_order.html', {'page': 'order'})
+
+
+# 127.0.0.1:8000/user/address
+class UserAddressView(LoginRequiredMixin, View):
+    """用户中心----地址页"""
+    def get(self, request):
+        return render(request, 'user_center_site.html', {'page': 'address'})
 

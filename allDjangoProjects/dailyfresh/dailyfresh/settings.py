@@ -172,3 +172,6 @@ SESSION_CACHE_ALIAS = 'default'
 
 # 设置session失效时间,单位为秒
 SESSION_COOKIE_AGE = 60*5
+
+# 配置登录url地址
+LOGIN_URL = '/user/login'  # /accounts/login

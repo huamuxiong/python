@@ -1,6 +1,7 @@
 
 import re
 
+from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.mail import send_mail
@@ -9,7 +10,7 @@ from django.urls import reverse
 from django.views.generic import View
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired
 # from celery_tasks.tasks import send_register_active_email
-
+from celery_tasks.tasks import send_register_active_email
 from .models import User
 
 
@@ -105,13 +106,16 @@ class RegisterView(View):
         token = serializer.dumps({'confirm': user.id}).decode()
 
         # 发送邮件
-        subject = '天天生鲜注册'
-        message = ''
-        sender = settings.EMAIL_FROM
-        receiver = [email]
-        html_message = '<a href="http://127.0.0.1:8000/user/active/%s">点击</a>'%(token)
+        # subject = '天天生鲜注册'
+        # message = ''
+        # sender = settings.EMAIL_FROM
+        # receiver = [email]
+        # html_message = '<a href="http://127.0.0.1:8000/user/active/%s">点击</a>'%(token)
+        #
+        # send_mail(subject, message, sender, receiver, html_message=html_message)
 
-        send_mail(subject, message, sender, receiver, html_message=html_message)
+        send_register_active_email.delay(email, username, token)
+
         # 返回应答, 跳转到首页
         return redirect(reverse('goods:index'))
 
@@ -119,26 +123,22 @@ class RegisterView(View):
 # 127.0.0.1:8000/user/active/<id>
 class ActiveView(View):
     """账号激活"""
-    # def get(self, request, token):
-    #     print('哈哈哈：', token)
-    #     serializer = Serializer(settings.SECRET_KEY, 600)
-    #     try:
-    #         info = serializer.loads(token)
-    #         user_id = info['confirm']
-    #         print(user_id)
-    #         user = User.objects.get(id=user_id)
-    #         user.is_active = 1
-    #         user.save()
-    #
-    #         # 激活成功，跳转到登陆界面
-    #         return redirect(reverse('user:login'))
-    #
-    #     except SignatureExpired as e:
-    #
-    #         return HttpResponse("账户激活链接已过期")
-
     def get(self, request, token):
-        return render(request, 'test.html', {'token': token})
+        serializer = Serializer(settings.SECRET_KEY, 600)
+        try:
+            info = serializer.loads(token)
+            user_id = info['confirm']
+            user = User.objects.get(id=user_id)
+            user.is_active = 1
+            user.save()
+
+            # 激活成功，跳转到登陆界面
+            return redirect(reverse('user:login'))
+
+        except SignatureExpired as e:
+
+            return HttpResponse("账户激活链接已过期")
+
 
 # 127.0.0.1:8000/user/login
 class LoginView(View):
@@ -153,3 +153,43 @@ class LoginView(View):
             username = ''
             checked = ''
         return render(request, 'login.html', locals())
+
+    def post(self, request):
+        # 接收前端数据
+        username = request.POST.get('username')
+        password = request.POST.get('pwd')
+
+        # 验证数据合法性
+        if not all([username, password]):
+            return render(request, 'login.html', {'err_msg': '数据不完整'})
+
+        # 验证数据库
+        # user = User.objects.get(username=username, password=password)
+        user = authenticate(username=username, password=password)
+
+        # 业务逻辑处理
+        if user is not None:
+            # 判断账户是否激活
+            if user.is_active:
+                # 记录用户的登陆状态
+                login(request, user)
+
+                # 获取要跳转的页面，没有则跳转主页
+                next_url = request.GET.get('next', reverse('goods:index'))
+                response = redirect(next_url)
+
+                # 判断是否要记住密码
+                remember = request.POST.get('remember')
+                if remember == 'on':
+                    # 添加到cookie
+                    response.set_cookie('username', username, max_age=7*24*3600)
+                else:
+                    response.delete_cookie('username')
+
+                return response
+
+            else:
+                return render(request, 'login.html', {'err_msg': '用户未激活'})
+        else:
+            return render(request, 'login.html', {'err_msg': '‘用户名或密码错误'})
+

@@ -218,5 +218,81 @@ Change your form to point to 127.0.0.1:8000/user/register/ (note the trailing sl
 
 二、在settings.py中添加一句话：APPEND_SLASH=False（这里使用的是第二种）
 
+5. #### url自定义参数问题
 
+django2.x版本以后提出了新的url用法path
+
+如：先有基本地址：127.0.0.1:8000/user/active/<id>,其中id是动态变化的，那么在urls中定义如下
+
+```python
+url("^user/active/(?P<id>.*)/$", active),  # url写法
+path("user/active/<str:id>", active),  # path写法
+```
+
+path用法：`<type:arg>`
+
+Django2.0自带的PathConveter包括：
+
+- str：匹配除了路径分隔符（/）之外的非空字符串，如果没有转换器，默认使用str作为转换器。
+- int：匹配0及正整数。
+- slug：匹配字母、数字以及横杠、下划线组成的字符串。
+- uuid：匹配格式化的uuid，如 **075194d3-6885-417e-a8a8-6c931e272f00**。
+- path：匹配任何非空字符串，包含了路径分隔符（/）
+
+参考地址CSDN：https://www.cnblogs.com/wangdongpython/p/10865442.html
+
+官网地址：https://docs.djangoproject.com/en/2.2/topics/http/urls/
+
+6. #### windows链接ubuntu18.04的redis服务出错
+
+```
+Cannot connect to redis://192.168.1.6:6379/8:
+```
+
+问题描述：拒绝链接到redis服务
+
+解决办法：
+
+因为是在windows上连接ubuntu上的redis，所以ip改成ubuntu的ip，即192.168.1.6，但是redis默认绑定的是本地ip，即127.0.0.1，所以在windows上是连不上ubuntu上的redis的
+
+修改redis的配置文件/etc/redis/redis.conf
+
+```
+bind: 0.0.0.0
+protected-mode no
+```
+
+重启redis-server服务
+
+```
+service redis-server restart
+```
+
+7. #### windows上运行celery报错的问题
+
+```
+ValueError: not enough values to unpack (expected 3, got 0)
+```
+
+这个问题就是因为windows在执行celery异步任务时经常出现的错误。
+
+解决办法：
+
+安装`eventlet`
+
+```
+pip install eventlet
+```
+
+使用`eventlet`来启动`celery`任务
+
+```
+celery -A <mymodule> worker -l info -P eventlet
+```
+
+这里就是：
+
+```
+celery -A celery_tasks.tasks worker -l info -P eventlet
+```
 

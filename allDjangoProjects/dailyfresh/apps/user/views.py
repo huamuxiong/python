@@ -3,6 +3,7 @@ import re
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django_redis import get_redis_connection
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.mail import send_mail
@@ -11,8 +12,9 @@ from django.urls import reverse
 from django.views.generic import View
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired
 # from celery_tasks.tasks import send_register_active_email
+from goods.models import GoodsSKU
 from celery_tasks.tasks import send_register_active_email
-from .models import User
+from .models import User, Address
 
 
 # GET 127.0.0.1:8000/user/register
@@ -207,7 +209,27 @@ class LogoutView(View):
 class UserInfoView(LoginRequiredMixin, View):
     """用户中心---信息页"""
     def get(self, request):
-        return render(request, 'user_center_info.html', {'page': 'user'})
+        user = request.user
+        # address = Address.objects.get(user=user, is_default=True)
+        address = Address.objects.get_default_address(user)
+
+        # 链接redis
+        con = get_redis_connection("default")
+
+        history_key = "history_%d" % user.id
+        sku_ids = con.lrange(history_key, 0, 4)  # [2,3,1]
+        goods_li = []
+        for id in sku_ids:
+            goods = GoodsSKU.objects.get(id=id)
+            goods_li.append(goods)
+
+        # 组织上下文
+        context = {'page': 'user',
+                   'address': address,
+                   'goods_li': goods_li}
+
+        # 除了你给模板文件传递的模板变量之外，django框架会把request.user也传给模板文件
+        return render(request, 'user_center_info.html', context)
 
 
 # 127.0.0.1:8000/user/order/
@@ -221,5 +243,57 @@ class UserOrderInfoView(LoginRequiredMixin, View):
 class UserAddressView(LoginRequiredMixin, View):
     """用户中心----地址页"""
     def get(self, request):
-        return render(request, 'user_center_site.html', {'page': 'address'})
+        """显示"""
+        # 获取登录用户对应User对象
+        user = request.user
+        address = Address.objects.get_default_address(user)
+        # try:
+        #     address = Address.objects.get(user=user, is_default=True)
+        #
+        # except:
+        #     address = None
+        return render(request, 'user_center_site.html', {'page': 'address', 'address': address})
+
+    def post(self, request):
+        """添加地址"""
+        # 接收地址信息
+        receiver = request.POST.get('receiver')
+        addr = request.POST.get('addr')
+        zip_code = request.POST.get('zip_code')
+        phone = request.POST.get('phone')
+
+        # 验证合法性
+        if not all([receiver, addr, phone]):
+            return render(request, 'user_center_site.html', {'errmsg':'数据不完整'})
+
+        # 校验手机号
+        if not re.match(r'^1[3|4|5|7|8][0-9]{9}$', phone):
+            return render(request, 'user_center_site.html', {'errmsg': '手机格式不正确'})
+
+        # 业务处理：地址添加
+        # 如果用户已存在默认收货地址，添加的地址不作为默认收货地址，否则作为默认收货地址
+        # 获取登录用户对应User对象
+        user = request.user
+        address = Address.objects.get_default_address(user)
+        # try:
+            # address = Address.objects.get(user=user, is_default=True)
+        # except Address.DoesNotExist:
+        #     # 不存在默认收货地址
+        #     address = None
+        if address:
+            is_default = False
+        else:
+            is_default = True
+
+        Address.objects.create(
+            user=user,
+            receiver=receiver,
+            addr=addr,
+            zip_code=zip_code,
+            phone=phone,
+            is_default=is_default
+        )
+
+        # 返回结果
+        return redirect(reverse('user:address'))
 

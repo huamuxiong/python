@@ -120,6 +120,14 @@ xQoC_jvwf0KmSM4fmPIYZVLYoGmuXecX3ZqS-7w'
 {'id': 1}
 ```
 
+### 异步任务
+
+拷贝整个项目到ubuntu，进入manage.py同级目录中，启动任务
+
+```bash
+celery -A celery_tasks.tasks worker -l info
+```
+
 
 
 ## 常见问题

@@ -1,3 +1,18 @@
+ubuntu中需要：
+
+1. 启动nginx：`sudo /usr/local/nginx/sbin/nginx`，查看nginx启动状态：`ps -aux |grep nginx`
+2. 启动tracker：`sudo service fdfs_trackerd start`
+3. 启动storage：`sudo service fdfs_storaged start`
+4. 进入dailyfresh虚拟环境：`conda activate dailyfresh`
+5. 进入项目manage.py同级目录下
+6. 启动celery worker：`celery -A celery_tasks.tasks worker -l info`
+
+windows中需要：
+
+1. 进入项目manage.py同级目录
+2. 进入dailyfresh虚拟环境
+3. 启动项目：`python manage.py runserver`
+
 ### 创建django项目
 
 ```python

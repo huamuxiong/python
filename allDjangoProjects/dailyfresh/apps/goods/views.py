@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic.base import View
@@ -11,6 +12,7 @@ from order.models import OrderGoods
 from .models import GoodsSKU, GoodsType, IndexGoodsBanner, IndexPromotionBanner, IndexTypeGoodsBanner
 
 
+# 127.0.0.1:8000
 class IndexView(View):
     """主页"""
     def get(self, request):
@@ -59,6 +61,7 @@ class IndexView(View):
         return render(request, 'index.html', context)
 
 
+# 127.0.0.1:8000/detail/<goods_id>
 class DetailView(View):
     def get(self, request, goods_id):
         try:
@@ -106,3 +109,100 @@ class DetailView(View):
                    'same_spu_skus': same_spu_skus,
                    'cart_count': cart_count}
         return render(request, 'detail.html', context)
+
+
+# 127.0.0.1:8000/list/type_id/page?sort=xxx
+class ListView(View):
+    def get(self, request, type_id, page):
+        """
+        列表页
+        :param type_id: 分类 id
+        :param page: 页码
+        :param sort: 排序
+        :return: list.html, context:数据
+        """
+        # 根据需求，需要获取以下数据
+        # 全部商品分类（在base_detail_list.html）
+        # 购物车（需要判断用户是否登陆，默认显示0，base_detail_list.html）
+        # 新品推荐
+        # 列表分类，即当前是哪个分类下的列表（新鲜水果，猪牛羊肉等）
+        # 列表数据（三种排序：默认，价格，人气）
+        # 列表分页
+
+        # 根据type_id 获取该分类的信息
+        try:
+            type = GoodsType.objects.get(id=type_id)
+        except Exception as e:
+            # 种类不存在
+            return redirect(reverse('goods:index'))
+
+        # 全部分类
+        types = GoodsType.objects.all()
+
+        # 购物车
+        user = request.user
+        cart_count = 0
+        if user.is_authenticated:
+            # 用户已登录
+            conn = get_redis_connection('default')
+            cart_key = 'cart_%d' % user.id
+            cart_count = conn.hlen(cart_key)
+
+        # 新品推荐
+        new_skus = GoodsSKU.objects.filter(type=type).order_by('-create_time')[:3]
+
+        # 列表数据（三种排序：默认，价格，人气）
+        # 获取sort参数,分别是default, price, hot
+        sort = request.GET.get('sort')
+        # 获取数据并根据用户选择进行排序
+        if sort == 'price':
+            skus = GoodsSKU.objects.filter(type=type).order_by('price')
+        elif sort == 'hot':
+            skus = GoodsSKU.objects.filter(type=type).order_by('-sales')
+        else:
+            sort = 'default'
+            skus = GoodsSKU.objects.filter(type=type).order_by('-id')
+
+        # 对数据进行分页,Paginator(list, per_page)
+        paginator = Paginator(skus, 1)
+
+        # 如果page不能转换为int类型，设置为 1
+        try:
+            page = int(page)
+        except Exception as e:
+            page = 1
+
+        # 如果page大于总页数或小于 1，设置为 1
+        if page > paginator.num_pages or page < 1:
+            page = 1
+
+        # 获取第page页的实例对象
+        skus_page = paginator.page(page)
+
+        # todo: 进行页码的控制，页面上最多显示 5 页
+        # 1. 总页数小于5，页面显示所有的页码
+        # 2. 当前页在前3页，显示1-5的页码
+        # 3. 当前页是后3页，显示后5页的页码
+        # 4. 其他情况，显示当前页，前后各2页
+
+        num_pages = paginator.num_pages
+        if num_pages < 5:
+            pages = range(1, num_pages+1)
+        elif page <= 3:
+            pages = range(1, 6)
+        elif num_pages - page <= 2:
+            pages = range(num_pages-4, num_pages+1)
+        else:
+            pages = range(page-2, page+3)
+
+        context = {
+            'type': type,
+            'types': types,
+            'cart_count': cart_count,
+            'new_skus': new_skus,
+            'sort': sort,
+            'skus_page': skus_page,
+            'pages': pages
+
+        }
+        return render(request, 'list.html', context)

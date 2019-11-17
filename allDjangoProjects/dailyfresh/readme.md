@@ -143,6 +143,63 @@ xQoC_jvwf0KmSM4fmPIYZVLYoGmuXecX3ZqS-7w'
 celery -A celery_tasks.tasks worker -l info
 ```
 
+## 全文检索
+
+安装django-haystack
+
+```python
+pip install django-haystack
+```
+
+安装whoosh
+
+```
+pip install whoosh
+```
+
+在settings.py中进行配置
+
+```python
+# 注册
+INSTALLED_APPS = (
+    ...
+    'haystack',
+)
+
+# 配置
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        #使用whoosh引擎
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        #索引文件路径
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    }
+}
+
+#当添加、修改、删除数据时，自动生成索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+```
+
+启动检索框架
+
+```
+python manage.py rebuild_index
+```
+
+## 设置mysql的隔离级别
+
+ubuntu中
+
+```
+sudo vi /etc/mysql/mysql.conf.d/mysql.cnf
+```
+
+添加下边的语句
+
+```
+transaction-isolation = READ-COMMITTED
+```
+
 
 
 ## 常见问题

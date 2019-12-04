@@ -246,7 +246,7 @@ class OrderPayView(View):
         # 业务处理:使用python sdk调用支付宝的支付接口
         # 初始化
         alipay = AliPay(
-            appid="2016090800464054", # 应用id
+            appid="2016101000651363", # 应用id
             app_notify_url=None,  # 默认回调url
             app_private_key_path=os.path.join(settings.BASE_DIR, 'apps/order/app_private_key.pem'),
             alipay_public_key_path=os.path.join(settings.BASE_DIR, 'apps/order/alipay_public_key.pem'), # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,

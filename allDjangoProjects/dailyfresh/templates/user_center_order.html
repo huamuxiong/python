@@ -26,7 +26,7 @@
                     </td>
                     <td width="15%">{{ order.total_price|add:order.transit_price }}(含运费:{{ order.transit_price }})元</td>
                     <td width="15%">{{ order.order_status }}</td>
-                    <td width="15%"><a href="#" order_id="{{ order.order_id }}" status="{{ order.order_status }}" class="oper_btn">去付款</a></td>
+                    <td width="15%"><a href="#" order_id="{{ order.order_id }}" status="{{ order.order_status_id }}" class="oper_btn">去付款</a></td>
                 </tr>
             </tbody>
         </table>

@@ -254,10 +254,14 @@ class UserOrderInfoView(LoginRequiredMixin, View):
                 # 动态给order_sku添加amount属性，保存订单商品的小计
                 order_sku.amount = amount
 
+            # 动态给order添加属性，保存订单 商品的状态id
+            order.order_status_id = order.order_status
             # 动态给order添加属性，保存订单状态标题
             order.order_status = OrderInfo.ORDER_STATUS[order.order_status]
             # 动态给order添加属性，保存订单商品的信息
             order.order_skus = order_skus
+
+
 
         # 分页
         paginator = Paginator(orders, 1)

@@ -1,3 +1,7 @@
+导出依赖包到requirements.txt：`pip freeze > requirements.txt`
+
+安装依赖包requirements.txt：`pip install -r requirements.txt`
+
 ubuntu中需要：
 
 1. 启动nginx：`sudo /usr/local/nginx/sbin/nginx`，查看nginx启动状态：`ps -aux |grep nginx`

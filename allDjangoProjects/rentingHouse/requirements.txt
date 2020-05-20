@@ -21,7 +21,7 @@ docopt==0.6.2
 et-xmlfile==1.0.1
 fake-useragent==0.1.11
 future==0.17.1
-httplib2==0.12.3
+httplib2==0.18.0
 idna==2.8
 jdcal==1.4
 lazy-object-proxy==1.4.0

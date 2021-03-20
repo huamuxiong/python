@@ -21,7 +21,7 @@ idna==2.8
 imageio==2.5.0
 importlib-metadata==0.19
 itsdangerous==1.1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 kiwisolver==1.1.0
 kombu==4.6.4
 Mako==1.1.0

@@ -27,7 +27,7 @@ pycryptodomex==3.7.2
 PyMySQL==0.9.3
 python-alipay-sdk==1.10.1
 pytz==2019.2
-PyYAML==5.2
+PyYAML==5.4
 redis==3.3.8
 requests==2.22.0
 shellescape==3.4.1

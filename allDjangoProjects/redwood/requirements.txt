@@ -20,7 +20,7 @@ Pillow==6.0.0
 pipreqs==0.4.9
 PyMySQL==0.9.3
 pytz==2019.1
-PyYAML==5.1
+PyYAML==5.4
 requests==2.21.0
 soupsieve==1.9.1
 sqlparse==0.3.0

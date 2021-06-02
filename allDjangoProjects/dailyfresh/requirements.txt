@@ -33,7 +33,7 @@ requests==2.22.0
 shellescape==3.4.1
 six==1.12.0
 sqlparse==0.3.0
-urllib3==1.25.7
+urllib3==1.26.5
 vine==1.3.0
 Whoosh==2.7.4
 wincertstore==0.2

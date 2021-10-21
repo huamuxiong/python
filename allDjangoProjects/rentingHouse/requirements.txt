@@ -1,6 +1,6 @@
 alabaster==0.7.12
 astroid==2.2.5
-Babel==2.6.0
+Babel==2.9.1
 backcall==0.1.0
 backports.csv==1.0.7
 beautifulsoup4==4.7.1

@@ -30,7 +30,7 @@ matplotlib==3.1.1
 monotonic==1.5
 networkx==2.3
 numpy==1.17.0
-Pillow==6.1.0
+Pillow==9.3.0
 post==2019.4.13
 public==2019.4.13
 pycryptodomex==3.7.2
